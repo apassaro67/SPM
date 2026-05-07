@@ -10,43 +10,42 @@ from pptx.util import Pt
 from pptx.dml.color import RGBColor
 from pptx.enum.text import PP_ALIGN
 
-SRC = "/tmp/2026_05_18_VS_Zielbild_SNOW_SPM_v2.pptx"
-DST = "/tmp/2026_05_18_VS_Zielbild_SNOW_SPM_v3.pptx"
+SRC = "/tmp/2026_05_18_VS_Zielbild_SNOW_SPM_v3.pptx"
+DST = "/tmp/2026_05_18_VS_Zielbild_SNOW_SPM_v4.pptx"
 
 DARK = RGBColor(0x1F, 0x29, 0x37)
 
-# 3 bullets per cell (kept short for board readability)
+# 3 kurze Bullets pro Feld (vorstandsgerecht verdichtet)
 content = {
-    # idx in shape list -> list of bullet strings
-    21: [  # Entwicklung (EWW) – Produktprojekte – 80% (unter Umständen)
-        "Szenario grundsätzlich abbildbar – Thumbs Up für Auftragsklärung",
-        "PM-Anforderungen tiefer legen, Schwerpunkt Ressourcen- und Finanzplanung",
-        "Customizing über Low-Code hinaus erwartet; Anbietervergleich/Benchmarking ergänzen",
+    21: [  # Entwicklung (EWW)
+        "Szenario abbildbar (unter Umständen)",
+        "Schwerpunkt Ressourcen- & Finanzplanung",
+        "Anbietervergleich notwendig",
     ],
-    22: [  # Produktion (TGG) – Infrastrukturprojekte – 80%
-        "Szenario grundsätzlich abbildbar – Thumbs Up für Auftragsklärung",
-        "Anforderungen müssen inhaltlich noch tiefergelegt werden",
-        "Sehr guter Implementierungspartner nötig; Prozesse vorab klar definieren",
+    22: [  # Produktion (TGG)
+        "Szenario abbildbar",
+        "Anforderungen weiter detaillieren",
+        "Starker Implementierungspartner nötig",
     ],
-    23: [  # IT (VFI) – IT-Projekte – 80%
-        "IT-Szenario und FB-Anforderungen grundsätzlich abbildbar – Thumbs Up",
-        "Deutliches Potenzial der strategischen Plattform ServiceNow für die Use Cases",
-        "Detaillierte Auftragsklärung rechtzeitig zur Jahresplanung weiterverfolgen",
+    23: [  # IT (VFI)
+        "IT-Szenario abbildbar",
+        "Hohes Potenzial der SNOW-Plattform",
+        "Detail-Klärung zur Jahresplanung",
     ],
-    24: [  # Strategie (SCD) – Sonderprojekte – 80%
-        "SPM-Szenarien (Portfolio Management & OKR) grundsätzlich abbildbar – Thumbs Up",
-        "Mächtigkeit der Plattform verlangt sauberes Scope- und Rollout-Management",
-        "Potenzial: zentrale Datenverfügbarkeit; Zusatzaufwand in Prozess-/Verantwortungsklärung",
+    24: [  # Strategie (SCD)
+        "SPM (Portfolio & OKR) abbildbar",
+        "Sauberes Scope- & Rollout-Mgmt nötig",
+        "Potenzial: zentrale Datenbasis",
     ],
-    25: [  # Produktmanagement (MPM) – Strategische Produktplanung – 80%
-        "SPP Gantt und Bottom-up Planung auf Modell-Ebene grundsätzlich abbildbar – Thumbs Up",
-        "Anforderungsmanagement integrierbar (LH/CRD → Steckbrief): zusätzliches Potenzial",
-        "Chance: durchgängiger Systemansatz Strategie → Idee → Vorhaben → Projekt",
+    25: [  # Produktmanagement (MPM)
+        "SPP Gantt & Bottom-up abbildbar",
+        "Integration LH/CRD → Steckbrief",
+        "Durchgängige Kette Strategie → Projekt",
     ],
-    26: [  # Finanzen (VFI) – EV-Prozess – 60%
-        "Szenario abbildbar – Thumbs Up für Auftragsklärung",
-        "Viele Anforderungen müssen inhaltlich noch tiefergelegt werden",
-        "Detail-Klärung in Folge-Workshops zur weiteren Schärfung",
+    26: [  # Finanzen (VFI)
+        "Szenario abbildbar",
+        "Anforderungen weiter detaillieren",
+        "Folge-Workshops zur Schärfung",
     ],
 }
 
