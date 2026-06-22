@@ -128,7 +128,7 @@ prs = Presentation(SRC)
 # ---------------------------------------------------------------------
 # FOLIE 19 - UEBERSICHT / AGENDA
 # ---------------------------------------------------------------------
-s = add_slide_at(prs, LAYOUT_TITLE_ONLY, INSERT_AT)
+s = s_overview = add_slide_at(prs, LAYOUT_TITLE_ONLY, INSERT_AT)
 clear_placeholders(s)
 accent_bar(s, ORANGE)
 set_title(s, "Digital Collaboration, Service Management & Support")
@@ -180,7 +180,7 @@ footer(s)
 # ---------------------------------------------------------------------
 # FOLIE 20 - WER WIR SIND & SCOPE
 # ---------------------------------------------------------------------
-s = add_slide_at(prs, LAYOUT_TITLE_ONLY, INSERT_AT + 1)
+s = s_who = add_slide_at(prs, LAYOUT_TITLE_ONLY, INSERT_AT + 1)
 clear_placeholders(s)
 accent_bar(s, ORANGE)
 set_title(s, "Wer wir sind – Digital Collaboration Service Management & Support")
@@ -267,7 +267,7 @@ def topic_slide(index, color, title, blocks, kpis, regel):
 # ---------------------------------------------------------------------
 # FOLIE 21 - DIGITAL COLLABORATION
 # ---------------------------------------------------------------------
-topic_slide(
+s_dc = topic_slide(
     INSERT_AT + 2, ORANGE,
     "Digital Collaboration – Prozesse, Governance & KPI",
     blocks=[
@@ -311,51 +311,70 @@ def fit_image(slide, path, bx, by, bw, bh):
     pic.line.width = Pt(0.5)
     return pic
 
-s = add_slide_at(prs, LAYOUT_TITLE_ONLY, INSERT_AT + 3)
-clear_placeholders(s)
-accent_bar(s, ORANGE)
-set_title(s, "Digital Collaboration – KPI-Dashboards & Nachweise (Stand 06/2026)")
-hline(s, Inches(1.05), color=ORANGE, weight=Pt(1.5))
-
-tiles = [
-    ("Teams – Active Users je Monat (in %)", "Outlook-4bwwffr1.png"),
-    ("Copilot Chat – Active Users (90 Tage)", "Outlook-offjn1gv.png"),
-    ("M365 Copilot – Usage Overview", "Outlook-vtm5zhsf.png"),
-    ("DC Community – Mitglieder & Aktivitaet", "Outlook-qzua1fhd.png"),
-    ("DC-Seite – Unique Visitors", "Outlook-5zzsa5tj.png"),
-    ("Kommunikationskanaele – E-Mail vs. Teams", "Outlook-vbqlsl05.png"),
-]
 import os
-col_w, gap_x = Emu(Inches(3.95)), Emu(Inches(0.22))
-row_h, gap_y = Emu(Inches(2.55)), Emu(Inches(0.2))
-x0, y0 = Emu(Inches(0.52)), Emu(Inches(1.25))
-for i, (cap, fn) in enumerate(tiles):
-    r, c = divmod(i, 3)
-    x = x0 + c * (col_w + gap_x)
-    y = y0 + r * (row_h + gap_y)
-    # Karten-Hintergrund
-    card = s.shapes.add_shape(MSO_SHAPE.ROUNDED_RECTANGLE, x, y, col_w, row_h)
-    card.fill.solid(); card.fill.fore_color.rgb = WHITE
-    card.line.color.rgb = ORANGE; card.line.width = Pt(1.0); card.shadow.inherit = False
-    # Caption
-    ctb, ctf = textbox(s, Emu(x + Emu(Inches(0.1))), Emu(y + Emu(Inches(0.06))),
-                       Emu(col_w - Emu(Inches(0.2))), Inches(0.3))
-    add_para(ctf, cap, size=10, bold=True, color=ORANGE, first=True, space_after=0)
-    # Bild
-    fit_image(s, os.path.join(IMG, fn),
-              x + Emu(Inches(0.12)), y + Emu(Inches(0.42)),
-              col_w - Emu(Inches(0.24)), row_h - Emu(Inches(0.54)))
 
-qtb, qtf = textbox(s, Inches(0.52), Inches(6.78), Inches(12.3), Inches(0.32))
-add_para(qtf, "Quellen: Microsoft 365 Admin Center · DC Community Analytics · SharePoint Site Analytics · Copilot Usage Reports  |  weitere Nachweise: Teams-Tabelle, Copilot-Lizenzgruppe, M365 Active-Users-Dashboard",
-         size=8, color=GREY, first=True)
-footer(s)
+
+def dashboard_slide(index, title, tiles, quelle):
+    s = add_slide_at(prs, LAYOUT_TITLE_ONLY, index)
+    clear_placeholders(s)
+    accent_bar(s, ORANGE)
+    set_title(s, title)
+    hline(s, Inches(1.05), color=ORANGE, weight=Pt(1.5))
+    col_w, gap_x = Emu(Inches(3.95)), Emu(Inches(0.22))
+    row_h, gap_y = Emu(Inches(2.55)), Emu(Inches(0.2))
+    x0, y0 = Emu(Inches(0.52)), Emu(Inches(1.25))
+    for i, (cap, fn) in enumerate(tiles):
+        r, c = divmod(i, 3)
+        x = x0 + c * (col_w + gap_x)
+        y = y0 + r * (row_h + gap_y)
+        card = s.shapes.add_shape(MSO_SHAPE.ROUNDED_RECTANGLE, x, y, col_w, row_h)
+        card.fill.solid(); card.fill.fore_color.rgb = WHITE
+        card.line.color.rgb = ORANGE; card.line.width = Pt(1.0); card.shadow.inherit = False
+        ctb, ctf = textbox(s, Emu(x + Emu(Inches(0.1))), Emu(y + Emu(Inches(0.06))),
+                           Emu(col_w - Emu(Inches(0.2))), Inches(0.3))
+        add_para(ctf, cap, size=10, bold=True, color=ORANGE, first=True, space_after=0)
+        fit_image(s, os.path.join(IMG, fn),
+                  x + Emu(Inches(0.12)), y + Emu(Inches(0.42)),
+                  col_w - Emu(Inches(0.24)), row_h - Emu(Inches(0.54)))
+    qtb, qtf = textbox(s, Inches(0.52), Inches(6.78), Inches(12.3), Inches(0.32))
+    add_para(qtf, quelle, size=8, color=GREY, first=True)
+    footer(s)
+    return s
+
+
+s_dash1 = dashboard_slide(
+    INSERT_AT + 3,
+    "Digital Collaboration – KPI-Dashboards & Nachweise (1/2, Stand 06/2026)",
+    [
+        ("Teams – Active Users je Monat (in %)", "Outlook-4bwwffr1.png"),
+        ("Copilot Chat – Active Users (90 Tage)", "Outlook-offjn1gv.png"),
+        ("M365 Copilot – Usage Overview", "Outlook-vtm5zhsf.png"),
+        ("DC Community – Mitglieder & Aktivitaet", "Outlook-qzua1fhd.png"),
+        ("DC-Seite – Unique Visitors", "Outlook-5zzsa5tj.png"),
+        ("Kommunikationskanaele – E-Mail vs. Teams", "Outlook-vbqlsl05.png"),
+    ],
+    "Quellen: Microsoft 365 Admin Center · DC Community Analytics · SharePoint Site Analytics · Copilot Usage Reports (Stand 06/2026)",
+)
+
+s_dash2 = dashboard_slide(
+    INSERT_AT + 4,
+    "Digital Collaboration – KPI-Dashboards & Nachweise (2/2, Stand 06/2026)",
+    [
+        ("Teams – Enabled/Active Users je Monat", "Outlook-uplclssj.png"),
+        ("Copilot Chat – Usage Overview (90 Tage)", "Outlook-4jlarcdj.png"),
+        ("M365 Copilot – Active Users Trend", "Outlook-qavpdno4.png"),
+        ("M365 – Daily Active Users Dashboard", "Outlook-mib3sagr.png"),
+        ("M365 Copilot – Lizenzgruppe (1.064)", "Outlook-ykpe4xjh.png"),
+        ("DC Community – Members & Guests (1.011)", "Outlook-sd2ekmja.png"),
+    ],
+    "Quellen: Microsoft 365 Admin Center · Copilot Usage Reports · M365 Lizenz-/Gruppenverwaltung · DC Community (Stand 06/2026)",
+)
 
 # ---------------------------------------------------------------------
-# FOLIE 23 - IT SERVICE MANAGEMENT
+# FOLIE 24 - IT SERVICE MANAGEMENT
 # ---------------------------------------------------------------------
-topic_slide(
-    INSERT_AT + 4, BLUE,
+s_itsm = topic_slide(
+    INSERT_AT + 5, BLUE,
     "IT Service Management – Prozesse, Governance & KPI",
     blocks=[
         ("Steuerungsansatz", [
@@ -384,10 +403,10 @@ topic_slide(
 )
 
 # ---------------------------------------------------------------------
-# FOLIE 24 - SUPPORT
+# FOLIE 25 - SUPPORT
 # ---------------------------------------------------------------------
-topic_slide(
-    INSERT_AT + 5, GREEN,
+s_support = topic_slide(
+    INSERT_AT + 6, GREEN,
     "Support – Prozesse, Governance & KPI",
     blocks=[
         ("Incident Management", [
@@ -416,9 +435,9 @@ topic_slide(
 )
 
 # ---------------------------------------------------------------------
-# FOLIE 25 - KPI-COCKPIT & AKTUELLE PROJEKTE / ABSCHLUSS
+# FOLIE 26 - KPI-COCKPIT & AKTUELLE PROJEKTE / ABSCHLUSS
 # ---------------------------------------------------------------------
-s = add_slide_at(prs, LAYOUT_TITLE_ONLY, INSERT_AT + 6)
+s = add_slide_at(prs, LAYOUT_TITLE_ONLY, INSERT_AT + 7)
 clear_placeholders(s)
 accent_bar(s, ORANGE)
 set_title(s, "KPI-Cockpit & aktuelle Projekte – auditfeste Nachweise")
@@ -483,6 +502,82 @@ ftf.margin_left = Inches(0.2)
 add_para(ftf, "Fazit: Prozesse sind dokumentiert, Rollen & Service Owner geklaert, KPI definiert – und das Tracking ist in ServiceNow / den Dashboards vorhanden.",
          size=13, bold=True, color=WHITE, first=True, space_after=0)
 footer(s)
+
+s_cockpit = s
+
+# ---------------------------------------------------------------------
+# SPRECHER-NOTIZEN (Deutsch) – ca. 6–8 Minuten Sprechzeit gesamt
+# ---------------------------------------------------------------------
+def add_notes(slide, text):
+    slide.notes_slide.notes_text_frame.text = text.strip()
+
+
+add_notes(s_overview, """
+Einstieg (ca. 45 Sek.):
+„Ich verantworte die Abteilung Digital Collaboration, Service Management & Support. Ich zeige Ihnen heute drei Themen – jeweils nach demselben Schema: Wer wir sind, wie unser Prozess geregelt ist und wo das nachweisbar getrackt wird.“
+- Thema 1 Digital Collaboration: Bereitstellung & Betrieb der M365-Arbeitsplatz- und Kollaborationsservices.
+- Thema 2 IT Service Management: ITSM als zentrales Steuerungsinstrument der Group IT (IPS).
+- Thema 3 Support: Service Desk sowie Incident- und Service-Level-Prozesse.
+Hinweis an Auditor: „Für jedes Thema zeige ich am Ende, wo es geregelt ist und welche KPI wir tracken.“
+""")
+
+add_notes(s_who, """
+Wer wir sind (ca. 1 Min.):
+- Abteilung D8/ODS, Department „Digital Collaboration Service Management & Support“.
+- Mission vorlesen: „We provide IT solutions and services to support and enable collaboration, communication and content creation.“
+- Portfolio kurz nennen: Teamwork, Messaging, Knowledge & Document Collaboration, Workflow & Automation, Voice, Media Technology – flankiert von Enablement, Community, Support, Governance.
+- Einordnung in IPS betonen: Wir verantworten Workplace-Plattformen, steuern Service Desk/Request/Incident, betreiben zentrale Plattformen (IDM, ServiceNow) und unterstützen die lokale IT bis zur „letzten Meile“.
+""")
+
+add_notes(s_dc, """
+Digital Collaboration – Prozess & Nachweis (ca. 1,5 Min.):
+- Regelwerk: Das M365 Operational Manual ist unser verbindliches Betriebshandbuch – Verantwortlichkeiten, Prozesse, Konfigurationen, Business Criticality je Service.
+- Prozesse: Monitoring, Ticketing, Alerts & Escalation, Business Continuity / Backup & Restore.
+- Support-Organisation: First Contact lokaler Service Desk → GRP Collaboration L1/L2/L3 → Microsoft; je Service ein Service Manager + Deputy.
+- KPI (echte Zahlen, Stand 06/2026): Teams 76,5 % active users; Copilot Chat 7.944 active users; M365 Copilot 1.431 active / 95,9 %; DC Community 1.017 / 61 %; DC-Seite 3.963 Unique Visitors.
+Auditfrage „wo geregelt?“ → M365_Operational_Manual + Live-Dashboards (nächste Folie).
+""")
+
+add_notes(s_dash1, """
+Dashboards 1/2 (ca. 1 Min.):
+- Das sind unsere echten Live-Dashboards – nicht aufbereitete Zahlen.
+- Teams Active-Users-Trend stabil um 76 %; Copilot Chat & M365 Copilot mit klar steigender Adoption.
+- DC Community und DC-Seite zeigen aktive Nutzung; Kommunikationskanäle (E-Mail vs. Teams) belegen den Shift.
+Quellen nennen: M365 Admin Center, Community Analytics, SharePoint Site Analytics.
+Wichtig bei Nachfrage zur Herleitung: ehrlich sein – einzelne Werte sind eine erste kuratierte Auswahl; Messlogik je KPI können wir benennen.
+""")
+
+add_notes(s_dash2, """
+Dashboards 2/2 (ca. 45 Sek.):
+- Vertiefende Nachweise: Teams Enabled/Active je Monat, Copilot-Nutzung im Detail, M365 Copilot Lizenzgruppe (1.064 lizenziert), M365 Daily-Active-Users-Dashboard, DC Community Members (1.011).
+- Aussage: „Wir tracken kontinuierlich und können je KPI Datenquelle und Zeitraum belegen.“
+Diese Folie ist als Backup/Detailnachweis gedacht – nur bei Nachfrage vertiefen.
+""")
+
+add_notes(s_itsm, """
+IT Service Management (ca. 1 Min.):
+- ITSM ist unser zentrales Steuerungsinstrument der Group IT (IPS) – Shift zu Services & Value, community-getrieben.
+- Kernbausteine: Service Catalogue & Service Owner – 201 Services / 890 Offerings nach TBM (Stand 11/25), Single Source of consistent information.
+- Governance: Monthly Practice Reviews mit KPI-Dashboard-Review, Root Cause/Corrective Actions, CSI Register; Service-based Working in ServiceNow.
+- KPI: SCM 01–04 (active services, Ø Offerings, used offerings, neue/aktualisierte Services) – Quelle ServiceNow, monatlich.
+Auditfrage „wo geregelt?“ → Practice „Service Catalogue Management“ (SharePoint), ServiceNow.
+""")
+
+add_notes(s_support, """
+Support (ca. 1 Min.):
+- Incident Management: Klassifikation über Impacted Service + Service Offering (seit 07/2025); Priorität aus Impact × Urgency (P1–P4); 5-Phasen-Workflow von Registration bis Review & Closing.
+- Service Level Management: 3 Service Level Classes über Demand-to-Portfolio; Features response/resolution/qualified support time; KPI dort, wo automatisch in ServiceNow generierbar.
+- KPI: INC 01 Anzahl Incidents, INC 02 Initial resolution rate ≥ 65 %, INC 03 Resolution time ≥ 80 %, SLM Response/Resolution Time; Support-Felder SLA, FCR, CSAT, AHT, Backlog.
+Hinweis FCR: Felddefinition zeigen, aber survey-basierte Werte nur als Arbeitsstand benennen (Datenqualität/Response Rate).
+Auditfrage „wo geregelt?“ → Incident-/Service-Level-Management-Details (SharePoint), ServiceNow.
+""")
+
+add_notes(s_cockpit, """
+Abschluss (ca. 45 Sek.):
+- KPI-Cockpit zusammenfassen: Jeder KPI hat Schwellenwert, Datenquelle und Frequenz – überwiegend ServiceNow, DC zusätzlich aus den M365-/Community-Dashboards.
+- Aktuelle Projekte 2026 kurz nennen: Teams Phone Rollout, M365 Copilot Rollout, Copilot Studio Agents, Copilot Governance & Training, DLP, Cloud-Migration.
+- Schlusssatz: „Prozesse sind dokumentiert, Rollen und Service Owner geklärt, KPI definiert – und das Tracking ist in ServiceNow und unseren Dashboards vorhanden.“
+""")
 
 prs.save(OUT)
 print("Gespeichert:", OUT, "| Folien gesamt:", len(prs.slides.__iter__.__self__._sldIdLst))
