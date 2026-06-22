@@ -17,6 +17,7 @@ from pptx.oxml.ns import qn
 
 SRC = "/root/.claude/uploads/03b2ce4b-0ccb-5007-a1e5-57f9bf8c6baa/2f087795-DQS_Audit_Bereich_IPS_2026_07_01.pptx"
 OUT = "/home/user/SPM/DQS_Audit_IPS_2026_07_01_Passaro.pptx"
+IMG = "/home/user/SPM/kpi_img/flat"  # aufbereitete KPI-Screenshots aus der E-Mail WG: KPIs
 
 # --- STIHL Palette ---
 ORANGE = RGBColor(0xF3, 0x7A, 0x1F)   # Digital Collaboration
@@ -285,20 +286,76 @@ topic_slide(
         ]),
     ],
     kpis=[
-        "Active Users: 638 aktiv (Stand 09.06.2026)",
-        "Community-Mitglieder: 125 (Q3 2023) → 999 (Q2 2026)",
-        "Teams- & E-Mail-Aktivitaet als Trend (Adoption/Usage)",
-        "Power Platform / Copilot Adoption (Apps, Automate)",
-        "Empfehlung: max. 4 harte KPI je Live-Dashboard zeigen",
+        "Teams: 76,5 % active users (06/2026)",
+        "Copilot Chat: 7.944 active users / 768.343 Prompts (90 T.)",
+        "M365 Copilot: 1.431 active · 95,9 % (1.064 lizenziert)",
+        "DC Community: 1.017 Mitglieder · 61 % aktiv",
+        "DC-Seite: 3.963 Unique Visitors (30 Tage)",
     ],
-    regel="M365_Operational_Manual (Word) – Support Contact, Role & Skill Matrix, Monitoring, Business Continuity",
+    regel="M365_Operational_Manual (Word) · Live-Dashboards: M365 Admin Center, DC Community & Site Analytics (Stand 06/2026)",
 )
 
 # ---------------------------------------------------------------------
-# FOLIE 22 - IT SERVICE MANAGEMENT
+# FOLIE 22 - DIGITAL COLLABORATION: KPI-DASHBOARDS (NACHWEISE)
+# ---------------------------------------------------------------------
+def fit_image(slide, path, bx, by, bw, bh):
+    """platziert ein Bild seitenverhaeltnis-erhaltend zentriert in eine Box."""
+    from PIL import Image
+    iw, ih = Image.open(path).size
+    scale = min(bw / iw, bh / ih)
+    w = int(iw * scale); h = int(ih * scale)
+    x = bx + (bw - w) // 2
+    y = by + (bh - h) // 2
+    pic = slide.shapes.add_picture(path, x, y, w, h)
+    pic.line.color.rgb = RGBColor(0xDD, 0xDD, 0xDD)
+    pic.line.width = Pt(0.5)
+    return pic
+
+s = add_slide_at(prs, LAYOUT_TITLE_ONLY, INSERT_AT + 3)
+clear_placeholders(s)
+accent_bar(s, ORANGE)
+set_title(s, "Digital Collaboration – KPI-Dashboards & Nachweise (Stand 06/2026)")
+hline(s, Inches(1.05), color=ORANGE, weight=Pt(1.5))
+
+tiles = [
+    ("Teams – Active Users je Monat (in %)", "Outlook-4bwwffr1.png"),
+    ("Copilot Chat – Active Users (90 Tage)", "Outlook-offjn1gv.png"),
+    ("M365 Copilot – Usage Overview", "Outlook-vtm5zhsf.png"),
+    ("DC Community – Mitglieder & Aktivitaet", "Outlook-qzua1fhd.png"),
+    ("DC-Seite – Unique Visitors", "Outlook-5zzsa5tj.png"),
+    ("Kommunikationskanaele – E-Mail vs. Teams", "Outlook-vbqlsl05.png"),
+]
+import os
+col_w, gap_x = Emu(Inches(3.95)), Emu(Inches(0.22))
+row_h, gap_y = Emu(Inches(2.55)), Emu(Inches(0.2))
+x0, y0 = Emu(Inches(0.52)), Emu(Inches(1.25))
+for i, (cap, fn) in enumerate(tiles):
+    r, c = divmod(i, 3)
+    x = x0 + c * (col_w + gap_x)
+    y = y0 + r * (row_h + gap_y)
+    # Karten-Hintergrund
+    card = s.shapes.add_shape(MSO_SHAPE.ROUNDED_RECTANGLE, x, y, col_w, row_h)
+    card.fill.solid(); card.fill.fore_color.rgb = WHITE
+    card.line.color.rgb = ORANGE; card.line.width = Pt(1.0); card.shadow.inherit = False
+    # Caption
+    ctb, ctf = textbox(s, Emu(x + Emu(Inches(0.1))), Emu(y + Emu(Inches(0.06))),
+                       Emu(col_w - Emu(Inches(0.2))), Inches(0.3))
+    add_para(ctf, cap, size=10, bold=True, color=ORANGE, first=True, space_after=0)
+    # Bild
+    fit_image(s, os.path.join(IMG, fn),
+              x + Emu(Inches(0.12)), y + Emu(Inches(0.42)),
+              col_w - Emu(Inches(0.24)), row_h - Emu(Inches(0.54)))
+
+qtb, qtf = textbox(s, Inches(0.52), Inches(6.78), Inches(12.3), Inches(0.32))
+add_para(qtf, "Quellen: Microsoft 365 Admin Center · DC Community Analytics · SharePoint Site Analytics · Copilot Usage Reports  |  weitere Nachweise: Teams-Tabelle, Copilot-Lizenzgruppe, M365 Active-Users-Dashboard",
+         size=8, color=GREY, first=True)
+footer(s)
+
+# ---------------------------------------------------------------------
+# FOLIE 23 - IT SERVICE MANAGEMENT
 # ---------------------------------------------------------------------
 topic_slide(
-    INSERT_AT + 3, BLUE,
+    INSERT_AT + 4, BLUE,
     "IT Service Management – Prozesse, Governance & KPI",
     blocks=[
         ("Steuerungsansatz", [
@@ -327,10 +384,10 @@ topic_slide(
 )
 
 # ---------------------------------------------------------------------
-# FOLIE 23 - SUPPORT
+# FOLIE 24 - SUPPORT
 # ---------------------------------------------------------------------
 topic_slide(
-    INSERT_AT + 4, GREEN,
+    INSERT_AT + 5, GREEN,
     "Support – Prozesse, Governance & KPI",
     blocks=[
         ("Incident Management", [
@@ -359,9 +416,9 @@ topic_slide(
 )
 
 # ---------------------------------------------------------------------
-# FOLIE 24 - KPI-COCKPIT & AKTUELLE PROJEKTE / ABSCHLUSS
+# FOLIE 25 - KPI-COCKPIT & AKTUELLE PROJEKTE / ABSCHLUSS
 # ---------------------------------------------------------------------
-s = add_slide_at(prs, LAYOUT_TITLE_ONLY, INSERT_AT + 5)
+s = add_slide_at(prs, LAYOUT_TITLE_ONLY, INSERT_AT + 6)
 clear_placeholders(s)
 accent_bar(s, ORANGE)
 set_title(s, "KPI-Cockpit & aktuelle Projekte – auditfeste Nachweise")
@@ -378,7 +435,9 @@ rows = [
     ("INC 01 Number of incidents", "–", "ServiceNow", "monatl."),
     ("SLM Response / Resolution Time", "SLA-def.", "ServiceNow", "monatl."),
     ("SCM 01–04 Service Catalogue", "–", "ServiceNow", "monatl."),
-    ("DC Active Users / Community", "638 / 999", "DC Status", "Q2 2026"),
+    ("DC Teams active users", "76,5 %", "M365 Admin", "06/2026"),
+    ("DC M365 Copilot active rate", "95,9 %", "Copilot Rep.", "90 Tage"),
+    ("DC Community Mitglieder", "1.017 / 61%", "DC Analytics", "06/2026"),
     ("Support: SLA, FCR, CSAT, Backlog", "Felder def.", "Dashboard", "lfd."),
 ]
 nrows, ncols = len(rows), 4
