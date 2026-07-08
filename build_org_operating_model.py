@@ -25,6 +25,7 @@ HOMEBASE  = RGBColor(0x2E, 0x5A, 0x8F)   # Linie / Struktur
 HOMEBASE_LT = RGBColor(0xE4, 0xEC, 0xF4)
 PURPLE    = RGBColor(0x6B, 0x4F, 0xA0)   # Community
 GREEN     = RGBColor(0x2E, 0x7D, 0x32)
+RED       = RGBColor(0xB9, 0x1C, 0x1C)
 LINE_GREY = RGBColor(0xD1, 0xD5, 0xDB)
 # RACI
 R_C = RGBColor(0x2E, 0x7D, 0x5B); A_C = RGBColor(0xB4, 0x53, 0x1A)
@@ -414,5 +415,214 @@ for i, (n, t, d) in enumerate(steps):
     add_text(s, lx + 7, 71.0, sw - 8, 3.5, [(t, {"size": 10.5, "bold": True, "color": DARK})])
     add_text(s, lx + 7, 74.4, sw - 8, 7, [(d, {"size": 8.7, "color": GREY_TXT})], line_spacing=1.05)
 
+# ==========================================================================
+# SLIDE 7 -- SLA / OLA / UC Kaskade + Service-Tiers
+# ==========================================================================
+s = prs.slides.add_slide(BLANK)
+slide_header(s, "SERVICE-LEVEL", "SLA → OLA → UC – eine Zusage, back-to-back zerlegt", 7)
+add_text(s, 7, 19.5, 146, 4,
+         [("Der Service Owner gibt dem Business eine SLA. Diese wird intern in OLAs (Homebases) und "
+           "extern in Underpinning Contracts (Dienstleister) zerlegt – ohne Lücke.",
+           {"size": 11.5, "color": GREY_TXT})], line_spacing=1.15)
+
+# Kaskade links (drei gestapelte Ebenen)
+casc = [(ORANGE, "SLA", "Service Owner → Business", "Zugesagte Verfügbarkeit & Reaktionszeit je Service"),
+        (HOMEBASE, "OLA", "Service Owner ↔ Homebases", "Interne Betriebsvereinbarungen je beitragende Einheit"),
+        (PURPLE, "UC", "SIAM → Dienstleister", "Underpinning Contracts – Ziele strenger als OLA")]
+cy = 26
+for col, code, who, desc in casc:
+    add_rect(s, 7, cy, 70, 9.5, WHITE, line=LINE_GREY, line_w=1.0, round_=True)
+    add_rect(s, 7, cy, 11, 9.5, col, round_=False)
+    add_text(s, 7, cy, 11, 9.5, [(code, {"size": 17, "bold": True, "color": WHITE, "align": PP_ALIGN.CENTER})], anchor=MSO_ANCHOR.MIDDLE)
+    add_text(s, 20, cy + 1.1, 55, 3.5, [(who, {"size": 11, "bold": True, "color": DARK})])
+    add_text(s, 20, cy + 4.6, 56, 4.5, [(desc, {"size": 9.5, "color": GREY_TXT})], line_spacing=1.05)
+    cy += 11
+add_rect(s, 7, 59.5, 70, 8, LIGHT_BG, round_=True)
+add_text(s, 8.6, 59.5, 67, 8,
+         [("", {"runs": [
+             ("Goldene Regel:  ", {"bold": True, "color": ORANGE, "size": 10.5}),
+             ("UC-Ziel ≤ OLA-Ziel ≤ SLA-Ziel.", {"bold": True, "color": DARK, "size": 10.5}),
+             (" Jede Provider-Zusage ist strenger als die interne, jede interne strenger als die "
+              "Business-Zusage – so entstehen keine Deckungslücken.", {"color": GREY_TXT, "size": 10.5})]})],
+         anchor=MSO_ANCHOR.MIDDLE, line_spacing=1.15)
+
+# Rechts: Tier-Tabellen
+add_text(s, 82, 25, 71, 3.5, [("Verfügbarkeitsklassen", {"size": 12, "bold": True, "color": DARK})])
+tiers = [("Platinum", "99,9 %", "24×7", "IAM, Netzwerk, Compute, SAP-Prod"),
+         ("Gold", "99,5 %", "5×11 + Rufb.", "Workplace, Data, Service Desk"),
+         ("Silver", "99,0 %", "5×11", "nachrangige Services")]
+ty = 29
+add_rect(s, 82, ty, 71, 3.6, DARK)
+for cx0, w0, txt in [(82, 15, "Klasse"), (97, 12, "Verfügb."), (109, 16, "Kernzeit"), (125, 28, "Beispiele")]:
+    add_text(s, cx0, ty, w0, 3.6, [(txt, {"size": 9, "bold": True, "color": WHITE})], anchor=MSO_ANCHOR.MIDDLE)
+for i, (a, b, c, d) in enumerate(tiers):
+    ry = ty + 3.6 + i * 4.4
+    add_rect(s, 82, ry, 71, 4.4, WHITE if i % 2 == 0 else ROW_ALT)
+    add_text(s, 82.6, ry, 15, 4.4, [(a, {"size": 9.5, "bold": True, "color": ORANGE})], anchor=MSO_ANCHOR.MIDDLE)
+    add_text(s, 97, ry, 12, 4.4, [(b, {"size": 9.5, "color": DARK})], anchor=MSO_ANCHOR.MIDDLE)
+    add_text(s, 109, ry, 16, 4.4, [(c, {"size": 9, "color": DARK})], anchor=MSO_ANCHOR.MIDDLE)
+    add_text(s, 125, ry, 28, 4.4, [(d, {"size": 8.5, "color": GREY_TXT})], anchor=MSO_ANCHOR.MIDDLE)
+add_rect(s, 82, ty, 71, 3.6 + 3 * 4.4, None, line=LINE_GREY, line_w=1.0)
+
+add_text(s, 82, 47.5, 71, 3.5, [("Prioritäten – Reaktion / Wiederherstellung", {"size": 12, "bold": True, "color": DARK})])
+prio = [("P1 kritisch", "15 min", "≤ 4 h"), ("P2 hoch", "30 min", "≤ 8 h"),
+        ("P3 mittel", "4 h", "2 AT"), ("P4 niedrig", "8 h", "5 AT"), ("Service Request", "–", "3 AT")]
+py = 51.5
+add_rect(s, 82, py, 71, 3.6, DARK)
+for cx0, w0, txt in [(82, 27, "Priorität"), (109, 22, "Reaktion"), (131, 22, "Wiederherst.")]:
+    add_text(s, cx0, py, w0, 3.6, [(txt, {"size": 9, "bold": True, "color": WHITE})], anchor=MSO_ANCHOR.MIDDLE)
+for i, (a, b, c) in enumerate(prio):
+    ry = py + 3.6 + i * 3.5
+    add_rect(s, 82, ry, 71, 3.5, WHITE if i % 2 == 0 else ROW_ALT)
+    col = RED if i == 0 else (RGBColor(0xB4, 0x53, 0x1A) if i == 1 else DARK)
+    add_text(s, 82.6, ry, 27, 3.5, [(a, {"size": 9.3, "bold": i < 2, "color": col})], anchor=MSO_ANCHOR.MIDDLE)
+    add_text(s, 109, ry, 22, 3.5, [(b, {"size": 9.3, "color": DARK})], anchor=MSO_ANCHOR.MIDDLE)
+    add_text(s, 131, ry, 22, 3.5, [(c, {"size": 9.3, "color": DARK})], anchor=MSO_ANCHOR.MIDDLE)
+add_rect(s, 82, py, 71, 3.6 + 5 * 3.5, None, line=LINE_GREY, line_w=1.0)
+
+# ==========================================================================
+# SLIDE 8 -- SLA / OLA je Value Stream
+# ==========================================================================
+s = prs.slides.add_slide(BLANK)
+slide_header(s, "SERVICE-LEVEL", "SLA- & OLA-Skizze je Value Stream", 8)
+sla_rows = [
+    ("Modern Workplace", "Gold\n99,5 %", "5×11 +Rufb.", "4 h",
+     "Client Platform Ops (WS) · Endpoint-Sec (Cyber) · Collab-Apps (BusSol) · Vor-Ort (Local)",
+     "Field-/Deskside-Services · MDM-Provider · Print-Services"),
+    ("Network & Connectivity", "Platinum\n99,9 %", "24×7", "2 h",
+     "Network Ops (Infra) · Local Network (Local) · Network-Sec (Cyber)",
+     "WAN-Carrier · SD-WAN Managed Service"),
+    ("Compute, Cloud & DC", "Platinum\n99,9 %", "24×7", "2 h",
+     "Platform Ops (Infra) · Server Vor-Ort (Local) · Cloud-Sec (Cyber)",
+     "Hyperscaler · Colocation-DC · Backup-Provider"),
+    ("Identity & Access", "Platinum\n99,9 %", "24×7", "1 h",
+     "IDM Ops (Infra) · Identity-Security (Cyber)",
+     "IAM-SaaS (Entra/Okta) · PKI-Provider"),
+    ("SAP & Business Apps", "Platinum\n99,9 %", "6×14", "2 h",
+     "AMS (BusSol) · SAP Basis (AppTech) · Release & Deploy",
+     "SAP-AMS-Dienstleister · Hosting (RISE/Hyperscaler)"),
+    ("Data, Analytics & KI", "Gold\n99,5 %", "5×11", "8 h",
+     "BI Ops (BusSol) · Data Platform (EA/Infra) · MDM",
+     "Cloud-Analytics-Provider"),
+    ("Service Desk / ITSM", "Gold\n99,5 %", "24×7 (SD)", "Disp. <15m",
+     "Base ITSM Ops · Local Service Desk · ServiceNow-Plattform",
+     "Service-Desk-Dienstleister (1st Level) · ServiceNow (SaaS)"),
+]
+tx, ty = 7, 21
+cols = [("Value Stream", 25), ("Ziel-SLA", 15), ("Kernzeit", 14), ("P1", 12),
+        ("OLA-Bausteine (intern)", 42), ("Underpinning Contracts (Provider)", 38)]
+hh = 5.5
+add_rect(s, tx, ty, sum(w for _, w in cols), hh, DARK)
+cxp = tx
+for name, w in cols:
+    add_text(s, cxp + 0.5, ty, w - 0.8, hh, [(name, {"size": 9, "bold": True, "color": WHITE})], anchor=MSO_ANCHOR.MIDDLE)
+    cxp += w
+rh = 8.4
+for i, row in enumerate(sla_rows):
+    ry = ty + hh + i * rh
+    add_rect(s, tx, ry, sum(w for _, w in cols), rh, WHITE if i % 2 == 0 else ROW_ALT)
+    add_rect(s, tx, ry, 0.6, rh, ORANGE)
+    cxp = tx
+    tier_col = HOMEBASE if "Platinum" in row[1] else RGBColor(0xB4, 0x53, 0x1A)
+    styles = [
+        {"size": 9.8, "bold": True, "color": DARK},
+        {"size": 9, "bold": True, "color": tier_col, "align": PP_ALIGN.CENTER},
+        {"size": 8.8, "color": DARK, "align": PP_ALIGN.CENTER},
+        {"size": 8.8, "color": RED, "bold": True, "align": PP_ALIGN.CENTER},
+        {"size": 8.5, "color": GREY_TXT},
+        {"size": 8.5, "color": PURPLE},
+    ]
+    for j, (name, w) in enumerate(cols):
+        val = row[j]
+        add_text(s, cxp + 0.6, ry, w - 1.0, rh, [(val, styles[j])], anchor=MSO_ANCHOR.MIDDLE, line_spacing=1.02)
+        cxp += w
+add_rect(s, tx, ty, sum(w for _, w in cols), hh + len(sla_rows) * rh, None, line=LINE_GREY, line_w=1.0)
+add_text(s, 7, 84.0, 146, 3.5,
+         [("", {"runs": [
+             ("Quer: ", {"bold": True, "color": PURPLE, "size": 9.5}),
+             ("SOC (Cyber Defense) – 24×7-Monitoring, SecInc-Reaktion 30 min, UC mit MDR-Provider; "
+              "als Sicherheits-OLA in jeden Stream eingebunden.", {"color": GREY_TXT, "size": 9.5})]})])
+
+# ==========================================================================
+# SLIDE 9 -- Kapazitaets-Allokationsmatrix (Heatmap)
+# ==========================================================================
+s = prs.slides.add_slide(BLANK)
+slide_header(s, "STEUERUNG", "Kapazitäts-Allokationsmatrix – Homebase × Mannschaft", 9)
+add_text(s, 7, 19.5, 146, 4,
+         [("Wie viel Kapazität sagt jede Homebase welcher Mannschaft zu? Editierbares Steuerungs-"
+           "Template fürs Capacity-Board (Excel beiliegend). Beispielwerte in %.",
+           {"size": 11, "color": GREY_TXT})], line_spacing=1.1)
+
+hb_short = ["Workplace Solutions", "Infrastructure & Platforms", "Local IT Operations",
+            "Business Solutions", "Application Technology", "Cyber Defense/SecOps",
+            "Cyber GRC", "EA & Innovation"]
+hb_fte = [18, 30, 22, 26, 14, 12, 8, 6]
+col_short = ["M.Work", "Network", "Compute", "IAM", "SAP", "Data", "Svc Desk", "Chapter", "Run&Line"]
+matrix = [
+    [70, 0, 0, 0, 0, 0, 5, 15, 10],
+    [0, 25, 30, 20, 0, 0, 0, 10, 15],
+    [30, 10, 0, 0, 0, 0, 40, 5, 15],
+    [0, 0, 0, 5, 40, 25, 0, 15, 15],
+    [0, 0, 0, 0, 60, 10, 0, 15, 15],
+    [5, 5, 5, 10, 0, 0, 5, 20, 50],
+    [0, 0, 0, 10, 0, 0, 0, 30, 60],
+    [0, 0, 0, 0, 0, 20, 0, 40, 40],
+]
+def heat(v):
+    if v == 0:
+        return RGBColor(0xF4, 0xF6, 0xF8)
+    t = min(v, 70) / 70.0
+    r = int(0xFD + (0xF0 - 0xFD) * t); g = int(0xE6 + (0x7F - 0xE6) * t); b = int(0xCC + (0x12 - 0xCC) * t)
+    return RGBColor(r, g, b)
+
+gx, gy = 7, 26
+lblw, ftew = 33, 8
+cellw = (152 - gx - lblw - ftew) / len(col_short)
+hh = 6.5
+# Kopf
+add_text(s, gx, gy, lblw, hh, [("Homebase", {"size": 9, "bold": True, "color": WHITE})], anchor=MSO_ANCHOR.MIDDLE)
+add_rect(s, gx, gy, lblw, hh, DARK); add_text(s, gx + 0.6, gy, lblw - 1, hh, [("Homebase", {"size": 9, "bold": True, "color": WHITE})], anchor=MSO_ANCHOR.MIDDLE)
+add_rect(s, gx + lblw, gy, ftew, hh, DARK); add_text(s, gx + lblw, gy, ftew, hh, [("FTE", {"size": 8.5, "bold": True, "color": WHITE, "align": PP_ALIGN.CENTER})], anchor=MSO_ANCHOR.MIDDLE)
+for j, cn in enumerate(col_short):
+    cxx = gx + lblw + ftew + j * cellw
+    add_rect(s, cxx, gy, cellw, hh, DARK)
+    add_text(s, cxx, gy, cellw, hh, [(cn, {"size": 7.6, "bold": True, "color": WHITE, "align": PP_ALIGN.CENTER})], anchor=MSO_ANCHOR.MIDDLE)
+rh = 5.4
+for i, hb in enumerate(hb_short):
+    ry = gy + hh + i * rh
+    is_ms = False
+    add_rect(s, gx, ry, lblw, rh, WHITE if i % 2 == 0 else ROW_ALT)
+    add_rect(s, gx, ry, 0.7, rh, HOMEBASE)
+    add_text(s, gx + 1.2, ry, lblw - 1.5, rh, [(hb, {"size": 8.3, "bold": True, "color": DARK})], anchor=MSO_ANCHOR.MIDDLE)
+    add_rect(s, gx + lblw, ry, ftew, rh, WHITE if i % 2 == 0 else ROW_ALT)
+    add_text(s, gx + lblw, ry, ftew, rh, [(str(hb_fte[i]), {"size": 8.5, "bold": True, "color": HOMEBASE, "align": PP_ALIGN.CENTER})], anchor=MSO_ANCHOR.MIDDLE)
+    for j, v in enumerate(matrix[i]):
+        cxx = gx + lblw + ftew + j * cellw
+        add_rect(s, cxx, ry, cellw, rh, heat(v))
+        if v > 0:
+            tc = WHITE if v >= 45 else DARK
+            add_text(s, cxx, ry, cellw, rh, [(str(v), {"size": 8.3, "bold": v >= 40, "color": tc, "align": PP_ALIGN.CENTER})], anchor=MSO_ANCHOR.MIDDLE)
+gh = hh + len(hb_short) * rh
+add_rect(s, gx, gy, lblw + ftew + len(col_short) * cellw, gh, None, line=LINE_GREY, line_w=1.0)
+
+# Angebot/Nachfrage-Leiste
+add_text(s, 7, 76.5, 146, 3.5, [("Angebot vs. Nachfrage (FTE) – aus % × FTE berechnet", {"size": 11, "bold": True, "color": DARK})])
+sn = [("Modern Workplace", 19.8, 22), ("Network", 10.3, 10), ("Compute", 9.6, 10),
+      ("IAM", 9.3, 9), ("SAP", 18.8, 18), ("Data", 9.1, 10), ("Service Desk", 10.3, 10)]
+bw = 20.6
+for i, (nm, sup, dem) in enumerate(sn):
+    lx = 7 + i * (bw + 0.3)
+    gap = sup - dem
+    col = GREEN if gap >= 0 else RED
+    bg = RGBColor(0xE3, 0xF2, 0xEA) if gap >= 0 else RGBColor(0xFD, 0xE2, 0xE2)
+    add_rect(s, lx, 80, bw, 7.5, bg, round_=True)
+    add_text(s, lx + 0.4, 80.3, bw - 0.8, 3, [(nm, {"size": 7.6, "bold": True, "color": DARK})])
+    add_text(s, lx + 0.4, 83.2, bw - 0.8, 4,
+             [("", {"runs": [
+                 (f"{sup:.1f}", {"size": 9, "bold": True, "color": HOMEBASE}),
+                 (" / ", {"size": 8, "color": GREY_TXT}),
+                 (f"{dem:.0f}", {"size": 9, "color": DARK}),
+                 (f"  ({gap:+.1f})", {"size": 8.5, "bold": True, "color": col})]})])
+
 prs.save(DST)
-print("saved", DST, "with", len(prs.slides.__iter__.__self__._sldIdLst), "slides")
+print("saved", DST, "with", len(prs.slides._sldIdLst), "slides")

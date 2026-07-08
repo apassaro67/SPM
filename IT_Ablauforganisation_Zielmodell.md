@@ -6,8 +6,10 @@
 
 Begleitende Deliverables:
 - **Interaktive Fassung (Web):** siehe Artifact-Link in der Konversation
-- **CIO-Kurzfassung (PPTX):** `2026_07_08_IT_Ablauforganisation_Homebase_Mannschaft.pptx`
+- **CIO-Kurzfassung (PPTX, 9 Slides):** `2026_07_08_IT_Ablauforganisation_Homebase_Mannschaft.pptx`
   (erzeugt via `build_org_operating_model.py`)
+- **Kapazitäts-Allokationsmatrix (Excel-Template):**
+  `2026_07_08_Kapazitaets_Allokationsmatrix.xlsx` (erzeugt via `build_capacity_matrix.py`)
 
 ---
 
@@ -185,6 +187,95 @@ Legende: **R** Responsible · **A** Accountable · **C** Consulted · **I** Info
 4. **Matrix leben** — mit 1–2 Pilot-Value-Streams starten (z. B. Workplace),
    %-Kapazitätszusagen transparent machen, Capacity-Board als Eskalationsinstanz
    etablieren.
+
+---
+
+## 8. SLA-/OLA-Skizze je Value Stream
+
+Der Service Owner gibt dem Business eine **SLA**. Diese wird **back-to-back**
+zerlegt in interne **OLAs** (mit den beitragenden Homebases) und externe
+**Underpinning Contracts (UC)** mit den Dienstleistern.
+
+**Goldene Regel:** `UC-Ziel ≤ OLA-Ziel ≤ SLA-Ziel` — jede Provider-Zusage ist
+strenger als die interne, jede interne strenger als die Business-Zusage. So
+entstehen keine Deckungslücken.
+
+**Verfügbarkeitsklassen**
+
+| Klasse | Verfügbarkeit | Kernzeit | Beispiele |
+|---|---|---|---|
+| Platinum | 99,9 % | 24×7 | IAM, Netzwerk, Compute, SAP-Prod |
+| Gold | 99,5 % | 5×11 + Rufbereitschaft | Workplace, Data, Service Desk |
+| Silver | 99,0 % | 5×11 | nachrangige Services |
+
+**Prioritäten (Reaktion / Wiederherstellung)**
+
+| Priorität | Reaktion | Wiederherstellung |
+|---|---|---|
+| P1 kritisch | 15 min | ≤ 4 h (bzw. Tier) |
+| P2 hoch | 30 min | ≤ 8 h |
+| P3 mittel | 4 h | 2 AT |
+| P4 niedrig | 8 h | 5 AT |
+| Service Request | – | 3 AT |
+
+**SLA/OLA je Value Stream**
+
+| Value Stream | Ziel-SLA | Kernzeit | P1 Restore | OLA-Bausteine (intern) | Underpinning Contracts (Provider) |
+|---|---|---|---|---|---|
+| Modern Workplace | Gold 99,5 % | 5×11 +Rufb. | 4 h | Client Platform Ops (WS) · Endpoint-Sec (Cyber) · Collab-Apps (BusSol) · Vor-Ort (Local) | Field-/Deskside-Services · MDM-Provider · Print-Services |
+| Network & Connectivity | Platinum 99,9 % | 24×7 | 2 h | Network Ops (Infra) · Local Network (Local) · Network-Sec (Cyber) | WAN-Carrier · SD-WAN Managed Service |
+| Compute, Cloud & DC | Platinum 99,9 % | 24×7 | 2 h | Platform Ops (Infra) · Server Vor-Ort (Local) · Cloud-Sec (Cyber) | Hyperscaler · Colocation-DC · Backup-Provider |
+| Identity & Access | Platinum 99,9 % | 24×7 | 1 h | IDM Ops (Infra) · Identity-Security (Cyber) | IAM-SaaS (Entra/Okta) · PKI-Provider |
+| SAP & Business Apps | Platinum 99,9 % | 6×14 | 2 h | AMS (BusSol) · SAP Basis (AppTech) · Release & Deploy | SAP-AMS-Dienstleister · Hosting (RISE/Hyperscaler) |
+| Data, Analytics & KI | Gold 99,5 % | 5×11 | 8 h | BI Ops (BusSol) · Data Platform (EA/Infra) · MDM | Cloud-Analytics-Provider |
+| Service Desk / ITSM | Gold 99,5 % | 24×7 (SD) | Dispatch < 15 min | Base ITSM Ops · Local Service Desk · ServiceNow-Plattform | Service-Desk-Dienstleister (1st Level) · ServiceNow (SaaS) |
+
+*Quer:* SOC (Cyber Defense) — 24×7-Monitoring, SecInc-Reaktion 30 min, UC mit
+MDR-Provider; als Sicherheits-OLA in jeden Stream eingebunden.
+
+Governance: SLAs & OLAs werden **monatlich** im Service Management Review geprüft,
+UCs vom SIAM/Provider-Management verantwortet.
+
+---
+
+## 9. Kapazitäts-Allokationsmatrix (Capacity-Board)
+
+Das Excel-Template `2026_07_08_Kapazitaets_Allokationsmatrix.xlsx` macht sichtbar,
+wie viel Kapazität jede **Homebase** (Linie) an welche **Mannschaft** (Value
+Stream) zusagt — und ob die Summe die geplante Nachfrage deckt.
+
+**Beispiel-Allokation (%, je Zeile = 100 %)**
+
+| Homebase | FTE | M.Work | Netz | Compute | IAM | SAP | Data | Svc Desk | Chapter | Run&Line |
+|---|--:|--:|--:|--:|--:|--:|--:|--:|--:|--:|
+| Workplace Solutions | 18 | 70 | – | – | – | – | – | 5 | 15 | 10 |
+| Infrastructure & Platforms | 30 | – | 25 | 30 | 20 | – | – | – | 10 | 15 |
+| Local IT Operations | 22 | 30 | 10 | – | – | – | – | 40 | 5 | 15 |
+| Business Solutions (Design/AMS) | 26 | – | – | – | 5 | 40 | 25 | – | 15 | 15 |
+| Application Technology (SAP Basis/Dev) | 14 | – | – | – | – | 60 | 10 | – | 15 | 15 |
+| Cyber Defense / SecOps | 12 | 5 | 5 | 5 | 10 | – | – | 5 | 20 | 50 |
+| Cyber GRC | 8 | – | – | – | 10 | – | – | – | 30 | 60 |
+| EA & Innovation | 6 | – | – | – | – | – | 20 | – | 40 | 40 |
+
+**Angebot vs. Nachfrage (FTE, Beispiel)**
+
+| Value Stream | Angebot | Nachfrage | Deckung (Gap) |
+|---|--:|--:|--:|
+| Modern Workplace | 19,8 | 22 | **−2,2** |
+| Network & Connectivity | 10,3 | 10 | +0,3 |
+| Compute, Cloud & DC | 9,6 | 10 | **−0,4** |
+| Identity & Access | 9,3 | 9 | +0,3 |
+| SAP & Business Apps | 18,8 | 18 | +0,8 |
+| Data, Analytics & KI | 9,1 | 10 | **−0,9** |
+| Service Desk / ITSM | 10,3 | 10 | +0,3 |
+
+Bei Unterdeckung (rot) entscheidet das Capacity-Board: Nachfrage priorisieren,
+Kapazität umschichten, Dienstleister zuschalten oder Skill über Chapter aufbauen.
+Angebot rechnet sich automatisch aus `%-Allokation × FTE`; die Werte oben sind
+Beispielwerte.
+
+**Rhythmus:** quartalsweise Grundallokation (Portfolio-Board), monatliche
+Nachjustierung (Service Management Review).
 
 ---
 
