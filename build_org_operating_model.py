@@ -763,5 +763,110 @@ add_text(s, 7, 83.5, 146, 4,
               "entlastet die Service Owner, bündelt die Provider-Steuerung und schließt die Schnittstellen.",
               {"color": GREY_TXT, "size": 10})]})])
 
+# ==========================================================================
+# SLIDE 12 -- Rollenprofil Service Delivery Manager
+# ==========================================================================
+s = prs.slides.add_slide(BLANK)
+slide_header(s, "NEUE ROLLE", "Service Delivery Manager (SDM) – Rollenprofil", 12)
+# Mission-Band
+add_rect(s, 7, 19.5, 146, 8.5, ORANGE_LT, round_=True)
+add_rect(s, 7, 19.5, 1.0, 8.5, ORANGE)
+add_text(s, 9.5, 20, 142, 7.5,
+         [("", {"runs": [
+             ("Mission:  ", {"bold": True, "color": RGBColor(0xB4,0x53,0x1A), "size": 11}),
+             ("Sichert den durchgängigen, wirtschaftlichen Betrieb eines Service-Clusters, indem er/sie "
+              "alle internen Support-Einheiten und externen Dienstleister end-to-end koordiniert – und "
+              "entlastet den Service Owner vom operativen „Wie“.", {"color": DARK, "size": 11})]})],
+         anchor=MSO_ANCHOR.MIDDLE, line_spacing=1.15)
+
+def quad(lx, ty, col, title, bullets):
+    add_rect(s, lx, ty, 71.5, 25.5, WHITE, line=LINE_GREY, line_w=0.9, round_=True)
+    add_rect(s, lx, ty, 71.5, 0.9, col)
+    add_text(s, lx + 1.8, ty + 1.4, 68, 3.5, [(title, {"size": 11.5, "bold": True, "color": DARK})])
+    paras = []
+    for b in bullets:
+        paras.append((f"•  {b}", {"size": 9.2, "color": GREY_TXT, "space_after": 3}))
+    add_text(s, lx + 1.8, ty + 5.6, 68, 19, paras, line_spacing=1.05)
+
+quad(7, 30, ORANGE, "Kernaufgaben", [
+    "E2E-Koordination aller Support-Ebenen (L1 Desk, L2/L3 intern & Provider, Onsite/RSC)",
+    "Tägliche Steuerung der AMS-/Ops-Dienstleister (Tickets, UC/SLA, Eskalation)",
+    "Sicherstellung des End-to-End-SLA über die gesamte Kette",
+    "Betrieb der Ops-Rituale: Service Operations Review, Provider Jour Fixe",
+    "Incident-/Problem-/Change-Koordination über Einheiten hinweg",
+    "Konsolidiertes Reporting (Health, SLA, Provider, Kosten) in ServiceNow",
+])
+quad(81.5, 30, RED, "Macht NICHT (Abgrenzung)", [
+    "Fachliche Service-Definition, Priorisierung, Business-Wert → Service Owner",
+    "Vertragshoheit, kommerzielle Verhandlung, Lieferantenauswahl → Practice Supplier Mgmt / Einkauf",
+    "Technische Betriebsausführung → TSS-Ops-Teams / Provider",
+    "Disziplinarische Führung der Support-Mitarbeitenden → Linie (Homebase)",
+])
+quad(7, 57.5, HOMEBASE, "Mandat & KPIs", [
+    "Fachliches Weisungsrecht ggü. beteiligten Einheiten & Providern im Service-Kontext",
+    "Eskalationsrecht bei SLA-Gefährdung, Auslöser Major Incident",
+    "KPIs: E2E-SLA-Erfüllung · MTTR · Provider-SLA · Erstlösungsquote · Kosten/Service",
+])
+quad(81.5, 57.5, PURPLE, "Profil & Skills", [
+    "ITIL 4 / ITSM (Service Integration, Inc/Prob/Change), SIAM-Verständnis",
+    "Provider-/Vendor-Management, Vertrags- & SLA-Kompetenz",
+    "Erfahrung mit AMS (z. B. SAP/DXC) und Infrastruktur-Betrieb; ServiceNow",
+    "Laterale Führung & Durchsetzungsstärke ohne disziplinarische Macht; DE/EN",
+])
+
+# ==========================================================================
+# SLIDE 13 -- Migrationsvorgehen (Roadmap)
+# ==========================================================================
+s = prs.slides.add_slide(BLANK)
+slide_header(s, "UMSETZUNG", "Migration: vom „pro Service Owner“ zur SIAM-Klammer", 13)
+add_text(s, 7, 19.3, 146, 4,
+         [("Wellenweise über ~12 Monate – ohne Big Bang. Der Service Owner behält seine Accountability; "
+           "die Koordination wandert schrittweise in die Klammer.", {"size": 10.5, "color": GREY_TXT})], line_spacing=1.1)
+
+phases = [
+    ("PHASE 0", "Wo. 1–4", NAVY, "Setup & Mandat", [
+        "CIO-Entscheid: Klammer im IPS MO", "SIAM-Lead benennen", "Zielbild & Guardrails"]),
+    ("PHASE 1", "M 1–3", HOMEBASE, "Foundation", [
+        "ITSM-Prozesse auf ServiceNow harmonisieren", "Practice Supplier Mgmt stärken (SLA/KPI/Stammdaten)",
+        "Service-Kataster: Einheiten & Provider je Service mappen"]),
+    ("PHASE 2", "M 3–6", ORANGE, "Pilot", [
+        "1 Pilot-Cluster (z. B. SAP: DXC + TSS + Desk)", "SDM besetzen, OLAs/UCs schließen",
+        "Service Operations Review starten", "E2E-SLA messen · Lessons Learned"]),
+    ("PHASE 3", "M 6–12", PURPLE, "Rollout", [
+        "Cluster wellenweise anbinden, SDM-Team aufbauen", "Supplier & Operations Board etablieren",
+        "Major-Incident-Prozess zentralisieren", "Dashboards produktiv"]),
+    ("PHASE 4", "ab M 12", GREEN, "Stabilisierung & CI", [
+        "Betriebsmodell als Standard", "KPI-Steuerung", "Kontinuierliche Verbesserung"]),
+]
+pw = 28.0; pgap = 1.5; px0 = 7; ptop = 26
+# Zeitachse
+add_rect(s, px0, ptop + 3.3, 146, 0.18, LINE_GREY)
+for i, (ph, dur, col, title, acts) in enumerate(phases):
+    lx = px0 + i * (pw + pgap)
+    add_oval = None
+    add_rect(s, lx + pw/2 - 0.9, ptop + 2.5, 1.8, 1.8, col, shape=MSO_SHAPE.OVAL)
+    add_rect(s, lx, ptop + 6, pw, 8, col, round_=True)
+    add_text(s, lx, ptop + 6, pw, 8, [(ph, {"size": 9.5, "bold": True, "color": WHITE, "align": PP_ALIGN.CENTER}),
+                                      (dur, {"size": 8, "color": WHITE, "align": PP_ALIGN.CENTER})], anchor=MSO_ANCHOR.MIDDLE)
+    add_rect(s, lx, ptop + 15, pw, 37, WHITE, line=LINE_GREY, line_w=0.8, round_=True)
+    add_text(s, lx + 1.2, ptop + 16, pw - 2.4, 4, [(title, {"size": 10, "bold": True, "color": col})], line_spacing=1.0)
+    paras = [(f"•  {a}", {"size": 8, "color": GREY_TXT, "space_after": 3}) for a in acts]
+    add_text(s, lx + 1.2, ptop + 20.5, pw - 2.4, 31, paras, line_spacing=1.03)
+
+# Risiken-Band
+add_text(s, 7, 79, 146, 3.5, [("Zentrale Risiken & Gegenmaßnahmen", {"size": 11, "bold": True, "color": DARK})])
+risks = [
+    ("Widerstand der Service Owner (Machtverlust)", "klare WAS/WIE-Trennung – SO behält Accountability, wird entlastet"),
+    ("„SO kennt Service am besten“", "SDM arbeitet MIT dem SO, Wissenstransfer, SO bleibt fachlicher Sponsor"),
+    ("Verträge nicht back-to-back (UC≤OLA≤SLA)", "Practice Supplier Mgmt priorisiert UC-Anpassung"),
+]
+rw = 47.3
+for i, (r, m) in enumerate(risks):
+    lx = 7 + i * (rw + 2.5)
+    add_rect(s, lx, 83, rw, 4.8, LIGHT_BG, round_=True)
+    add_text(s, lx + 1.2, 83.1, rw - 2, 4.6,
+             [("", {"runs": [(r + "  ", {"size": 7.8, "bold": True, "color": RED}),
+                             ("→ " + m, {"size": 7.8, "color": GREY_TXT})]})], anchor=MSO_ANCHOR.MIDDLE, line_spacing=1.0)
+
 prs.save(DST)
 print("saved", DST, "with", len(prs.slides._sldIdLst), "slides")

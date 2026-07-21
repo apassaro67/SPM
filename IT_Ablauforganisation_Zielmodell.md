@@ -6,8 +6,10 @@
 
 Begleitende Deliverables:
 - **Interaktive Fassung (Web):** siehe Artifact-Link in der Konversation
-- **CIO-Kurzfassung (PPTX, 11 Slides):** `2026_07_08_IT_Ablauforganisation_Homebase_Mannschaft.pptx`
-  (erzeugt via `build_org_operating_model.py`) — inkl. Ist/Soll der Operations-Koordination (Slides 10–11)
+- **CIO-Kurzfassung (PPTX, 13 Slides):** `2026_07_08_IT_Ablauforganisation_Homebase_Mannschaft.pptx`
+  (erzeugt via `build_org_operating_model.py`) — inkl. Ist/Soll der Operations-Koordination
+  (Slides 10–11), SDM-Rollenprofil (12) und Migrations-Roadmap (13)
+- **Rollenbeschreibung SDM:** `Rollenbeschreibung_Service_Delivery_Manager.md`
 - **Kapazitäts-Allokationsmatrix (Excel-Template):**
   `2026_07_08_Kapazitaets_Allokationsmatrix.xlsx` (erzeugt via `build_capacity_matrix.py`)
 
@@ -370,6 +372,35 @@ führendes Tool.
 (SIAM)` im IPS Management Office, mit dem `Service Delivery Manager` als operativem
 Koordinator je Service-Cluster. Das entlastet die Service Owner, bündelt die
 Provider-Steuerung und schließt die Schnittstellen zwischen BSS/TSS/AMS/Service Desk.
+
+---
+
+## 11. Migrationsvorgehen — vom „pro Service Owner" zur SIAM-Klammer
+
+Wellenweise über ~12 Monate, **ohne Big Bang**. Der Service Owner behält seine
+Accountability; die Koordination wandert schrittweise in die Klammer.
+
+| Phase | Dauer | Fokus | Kernaktivitäten |
+|---|---|---|---|
+| **0 · Setup & Mandat** | Wo. 1–4 | Entscheidung & Auftrag | CIO-Entscheid (Klammer im IPS MO) · SIAM-Lead benennen · Zielbild & Guardrails |
+| **1 · Foundation** | M 1–3 | Fundament legen | ITSM-Prozesse auf ServiceNow harmonisieren · Practice Supplier Mgmt stärken (SLA/KPI/Stammdaten) · Service-Kataster: Einheiten & Provider je Service mappen |
+| **2 · Pilot** | M 3–6 | Beweis am Einzelfall | 1 Pilot-Cluster (z. B. SAP: DXC + TSS Windows + Service Desk) · SDM besetzen · OLAs/UCs schließen · Service Operations Review starten · E2E-SLA messen · Lessons Learned |
+| **3 · Rollout** | M 6–12 | Skalieren | Cluster wellenweise anbinden, SDM-Team aufbauen · Supplier & Operations Board etablieren · Major-Incident-Prozess zentralisieren · Dashboards produktiv |
+| **4 · Stabilisierung & CI** | ab M 12 | Verstetigen | Betriebsmodell als Standard · KPI-Steuerung · kontinuierliche Verbesserung |
+
+**Zentrale Risiken & Gegenmaßnahmen**
+
+| Risiko | Gegenmaßnahme |
+|---|---|
+| Widerstand der Service Owner (Machtverlust) | Klare WAS/WIE-Trennung — SO behält Accountability und wird entlastet |
+| „SO kennt Service am besten" | SDM arbeitet MIT dem SO, strukturierter Wissenstransfer, SO bleibt fachlicher Sponsor |
+| Verträge nicht back-to-back (UC ≤ OLA ≤ SLA) | Practice Supplier Management priorisiert UC-Anpassung |
+| Tool-Fragmentierung | ServiceNow als führendes System (Single Source of Truth) |
+| Überlastung des SDM | Klare, nicht zu breite Cluster-Schnitte; realistische Service-Anzahl je SDM |
+
+**Quick Wins** (früh sichtbar): zentraler Major-Incident-Prozess und ein
+gemeinsames End-to-End-SLA-Dashboard — beide entfalten sofort Wirkung, auch
+bevor alle Cluster migriert sind.
 
 ---
 
