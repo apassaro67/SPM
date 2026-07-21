@@ -6,8 +6,8 @@
 
 Begleitende Deliverables:
 - **Interaktive Fassung (Web):** siehe Artifact-Link in der Konversation
-- **CIO-Kurzfassung (PPTX, 9 Slides):** `2026_07_08_IT_Ablauforganisation_Homebase_Mannschaft.pptx`
-  (erzeugt via `build_org_operating_model.py`)
+- **CIO-Kurzfassung (PPTX, 11 Slides):** `2026_07_08_IT_Ablauforganisation_Homebase_Mannschaft.pptx`
+  (erzeugt via `build_org_operating_model.py`) — inkl. Ist/Soll der Operations-Koordination (Slides 10–11)
 - **Kapazitäts-Allokationsmatrix (Excel-Template):**
   `2026_07_08_Kapazitaets_Allokationsmatrix.xlsx` (erzeugt via `build_capacity_matrix.py`)
 
@@ -276,6 +276,100 @@ Beispielwerte.
 
 **Rhythmus:** quartalsweise Grundallokation (Portfolio-Board), monatliche
 Nachjustierung (Service Management Review).
+
+---
+
+## 10. Operations-Koordination in der IPS — Ist & Soll
+
+### Step 1 · Status quo (Ist)
+
+Heute koordiniert **jeder Service Owner seinen Support selbst**. Beispiel BSS:
+ein Service = Business-Applikation + Applikationsbetreuung durch **DXC (AMS)** +
+zugelieferte Services aus **TSS** (z. B. Windows Server) + **zentraler Service
+Desk** + ggf. **Regional Support Center** und weitere AMS-Dienstleister. Alle
+Koordinationslinien laufen manuell beim Service Owner zusammen.
+
+**Probleme, die daraus entstehen:**
+
+| # | Problem | Wirkung |
+|---|---|---|
+| P1 | Rollenüberladung Service Owner | Service fachlich verantworten UND alle Service Levels koordinieren = zwei Jobs |
+| P2 | Keine Klammerfunktion | Niemand ist übergeordnet für alle Supportaktivitäten zuständig |
+| P3 | Inkonsistente Support-Modelle | Jeder Service wird anders betrieben, kein Standard, schwer auditierbar |
+| P4 | Fragmentierte Provider-Steuerung | Jeder SO steuert DXC & Co. einzeln — keine Skaleneffekte, uneinheitliche SLAs |
+| P5 | Kein End-to-End-SLA über die Kette | App (DXC) + Infra (TSS) + Desk je eigene Zusage, niemand verantwortet das Ganze |
+| P6 | Ungeregelte Schnittstellen BSS↔TSS↔AMS↔SD | An Übergaben versanden Tickets & Eskalationen |
+| P7 | Governance läuft ins Leere | Practice Supplier Management setzt Standards, niemand operationalisiert sie je Service |
+| P8 | Personen- statt Prozessabhängigkeit | „SO kennt Service am besten" → Key-Person-Risiko, keine Skalierung, keine Transparenz |
+
+**Kernbefund:** Die IPS hat die richtigen Bausteine (Service Owner, Practice
+Supplier Management, Service Desk, AMS), aber keinen Dirigenten. Koordination ist
+Privatsache des Service Owners — genau die Lücke, die BSS mit dem Ruf nach einer
+„dedizierten Ressource" beschreibt.
+
+### Step 2 · Zielmodell (Soll) — die Operations-Klammer
+
+Die Klammer trennt **WAS** (Ergebnis) von **WIE** (Koordination):
+
+- **Service Owner** bleibt End-to-End-**accountable** für das Service-**Ergebnis**
+  (WAS) — gibt Ziele, SLA und Priorität vor, koordiniert aber nicht mehr selbst.
+- **Service Delivery Manager (SDM, neu)** übernimmt die operative **Koordination**
+  (WIE): steuert alle AMS-Dienstleister *und* internen Support-Einheiten (TSS,
+  Service Desk, RSC) je Service oder Service-Cluster. Das ist genau die
+  „dedizierte Ressource", die BSS fordert — als **Rolle einer Klammerfunktion**,
+  nicht als Improvisation je SO.
+- **Service Integration & Operations (SIAM, neu)** ist die Klammer selbst:
+  End-to-End-Prozesse, Provider-Integration, konsolidierte Service-/Kostensicht.
+  Enthält Service Level Management, Major Incident Management und die zentralen
+  Prozess-Owner (Incident/Problem/Change/Request).
+- **Practice Supplier Management** bleibt die Governance-Disziplin (Verträge,
+  SLA/KPI-Rahmen, ServiceNow-Stammdaten, Meeting-Standards) — jetzt mit einem
+  operativen Gegenüber, das die Standards je Service operationalisiert.
+
+**Fluss:** Service Owner (Ziel & SLA) → SDM (plant & steuert die Kette) →
+Provider + interne Einheiten liefern (OLA/UC) → SIAM misst End-to-End-SLA & eskaliert.
+
+**Zusätzlich benötigte Rollen/Einheiten**
+
+| Rolle | Neu? | Verantwortet | Heimat |
+|---|---|---|---|
+| Service Integration & Operations (SIAM) | **neu** | Klammer: E2E-Prozesse, Provider-Integration, konsolidierte Sicht | IPS Management Office |
+| Service Delivery Manager (SDM) | **neu** | Operative Koordination aller Provider + interner Support je Cluster | SIAM-Klammer (je Cluster) |
+| Service Level / Major Incident Mgr, Prozess-Owner | **neu** | SLA-Reporting, P1/P2-Steuerung, durchgängige ITSM-Prozesse | SIAM-Klammer |
+| Service Owner | Bestand | Ergebnis, Business-Wert, SLA-Zusage, Priorität (WAS) | BSS / Fach-Einheit |
+| Practice Supplier Management | Bestand | Provider-Governance (Verträge, SLA/KPI, ServiceNow-Stammdaten) | IPS Management Office |
+| Service Desk / RSC / AMS | Bestand | Liefererbringung auf ihrem Level, gekoppelt via OLA/UC | TSS / Region / Provider |
+
+### Wo wird geklammert — und warum dort?
+
+**Empfehlung: die SIAM-Klammer ins IPS Management Office** — nicht in eine der
+vier Liefer-Einheiten.
+
+- **Neutralität:** Das IPS MO steht *über* BSS, TSS und Cyber. Läge die Klammer in
+  TSS, würde eine Liefer-Einheit die Provider und den Support der anderen steuern
+  — Interessenkonflikt und fehlendes Mandat.
+- **Andockpunkte sind da:** Governance, IT Service Management, Practice Supplier
+  Management, Kapazitäts-/Ressourcenplanung, Lizenz- & Financial Management, PMO —
+  alle bereits im IPS MO.
+- **ServiceNow-Nähe:** Stammdaten, SLA/KPI und Dashboards werden dort schon
+  governt; die operative Koordination setzt darauf auf.
+
+**Abgrenzung zur Alternative „Klammer in TSS":** TSS bleibt der Ort der
+*technischen* Betriebsausführung (Infra-Ops, Service-Desk-Betrieb). Die
+*übergreifende* Koordination braucht ein neutrales Mandat oberhalb der
+Liefer-Einheiten. Praktischer Schnitt: **Betriebsausführung in TSS,
+Betriebs-Integration/-Koordination (SIAM) im IPS MO** — mit fachlicher
+Dotted-Line zwischen SDM und den TSS-Ops-Teams.
+
+**Koordinations-Rituale:** Service Operations Review je Cluster (wöchentlich,
+SDM-geführt) · Supplier & Operations Board (monatlich, SIAM + Practice Supplier
+Management) · zentraler Major-Incident-Prozess (bei Bedarf) · ServiceNow als
+führendes Tool.
+
+**Fazit:** Keine neue Säule — eine Klammer. `Service Integration & Operations
+(SIAM)` im IPS Management Office, mit dem `Service Delivery Manager` als operativem
+Koordinator je Service-Cluster. Das entlastet die Service Owner, bündelt die
+Provider-Steuerung und schließt die Schnittstellen zwischen BSS/TSS/AMS/Service Desk.
 
 ---
 

@@ -7,7 +7,7 @@ Matrix (RACI) und Ritual-Kalender. Stil an die bestehenden SPM-Decks angelehnt.
 from pptx import Presentation
 from pptx.util import Emu, Pt
 from pptx.dml.color import RGBColor
-from pptx.enum.shapes import MSO_SHAPE
+from pptx.enum.shapes import MSO_SHAPE, MSO_CONNECTOR
 from pptx.enum.text import PP_ALIGN, MSO_ANCHOR
 
 DST = "2026_07_08_IT_Ablauforganisation_Homebase_Mannschaft.pptx"
@@ -59,6 +59,16 @@ def add_rect(slide, left, top, w, h, fill, line=None, shape=MSO_SHAPE.RECTANGLE,
         s.line.color.rgb = line; s.line.width = Pt(line_w)
     s.shadow.inherit = False
     return s
+
+def connect(slide, x1, y1, x2, y2, color, w=1.25, dash=False):
+    cn = slide.shapes.add_connector(MSO_CONNECTOR.STRAIGHT, ex(x1), ex(y1), ex(x2), ex(y2))
+    cn.line.color.rgb = color; cn.line.width = Pt(w)
+    cn.shadow.inherit = False
+    if dash:
+        from pptx.oxml.ns import qn
+        ln = cn.line._get_or_add_ln()
+        pd = ln.makeelement(qn('a:prstDash'), {'val': 'dash'}); ln.append(pd)
+    return cn
 
 def set_paragraphs(shape, paragraphs, *, default_size=11, default_color=DARK,
                    default_align=PP_ALIGN.LEFT, line_spacing=None):
@@ -623,6 +633,135 @@ for i, (nm, sup, dem) in enumerate(sn):
                  (" / ", {"size": 8, "color": GREY_TXT}),
                  (f"{dem:.0f}", {"size": 9, "color": DARK}),
                  (f"  ({gap:+.1f})", {"size": 8.5, "bold": True, "color": col})]})])
+
+# ==========================================================================
+# SLIDE 10 -- Status quo: Support-Struktur & Probleme (Ist)
+# ==========================================================================
+s = prs.slides.add_slide(BLANK)
+slide_header(s, "OPERATIONS · STATUS QUO", "Heute koordiniert jeder Service Owner seinen Support selbst", 10)
+add_text(s, 7, 19.3, 90, 4,
+         [("Beispiel BSS: ein Service = Applikation + DXC (AMS) + TSS-Services (Windows Server) + "
+           "Service Desk. Alle Koordinationslinien laufen beim Service Owner zusammen.",
+           {"size": 10.5, "color": GREY_TXT})], line_spacing=1.12)
+
+# --- Diagramm links (Service Owner strahlt auf verstreute Einheiten) ---
+so_cx, so_y, so_w, so_h = 21, 26, 26, 8.5
+add_rect(s, so_cx, so_y, so_w, so_h, ORANGE, round_=True)
+add_text(s, so_cx, so_y, so_w, so_h, [("Service Owner (BSS)", {"size": 10.5, "bold": True, "color": WHITE, "align": PP_ALIGN.CENTER}),
+                                       ("koordiniert ALLES selbst", {"size": 8.5, "color": RGBColor(0xFD,0xE6,0xCC), "align": PP_ALIGN.CENTER})], anchor=MSO_ANCHOR.MIDDLE)
+so_bottom = (so_cx + so_w / 2, so_y + so_h)
+
+nodes = [
+    ("Business-Applikation\n(BSS)", HOMEBASE_LT, HOMEBASE, 3, 40),
+    ("AMS · DXC\nSAP L1–L3", RGBColor(0xEB,0xE6,0xF5), PURPLE, 27.5, 40),
+    ("weitere AMS-\nDienstleister", RGBColor(0xEB,0xE6,0xF5), PURPLE, 52, 40),
+    ("TSS · Windows Server\nInfra-Operations", HOMEBASE_LT, HOMEBASE, 3, 52.5),
+    ("Zentraler\nService Desk (L1)", HOMEBASE_LT, HOMEBASE, 27.5, 52.5),
+    ("Regional\nSupport Center", HOMEBASE_LT, HOMEBASE, 52, 52.5),
+]
+nw, nh = 20, 9
+for txt, bg, edge, nx, ny in nodes:
+    connect(s, so_bottom[0], so_bottom[1], nx + nw / 2, ny, RED, 1.25)
+for txt, bg, edge, nx, ny in nodes:
+    add_rect(s, nx, ny, nw, nh, bg, line=edge, line_w=1.0, round_=True)
+    lines = txt.split("\n")
+    add_text(s, nx, ny, nw, nh, [(lines[0], {"size": 8.6, "bold": True, "color": DARK, "align": PP_ALIGN.CENTER})]
+             + [(l, {"size": 7.8, "color": GREY_TXT, "align": PP_ALIGN.CENTER}) for l in lines[1:]],
+             anchor=MSO_ANCHOR.MIDDLE, line_spacing=1.0)
+add_text(s, 3, 62.5, 66, 4, [("Jede Linie = manuelle, individuelle Koordination — keine Klammer, kein Standard.",
+                              {"size": 8.5, "italic": True, "color": RED, "align": PP_ALIGN.CENTER})])
+
+# --- Probleme rechts ---
+add_text(s, 74, 25, 79, 4, [("Probleme, die daraus entstehen", {"size": 13, "bold": True, "color": DARK})])
+probs = [
+    ("Rollenüberladung Service Owner", "Service fachlich verantworten UND alle Service Levels koordinieren = zwei Jobs."),
+    ("Keine Klammerfunktion", "Niemand ist übergeordnet für alle Supportaktivitäten zuständig."),
+    ("Fragmentierte Provider-Steuerung", "Jeder SO steuert DXC & Co. einzeln — keine Skaleneffekte, uneinheitliche SLAs."),
+    ("Kein End-to-End-SLA über die Kette", "App (DXC) + Infra (TSS) + Desk je eigene Zusage — niemand verantwortet das Ganze."),
+    ("Ungeregelte Schnittstellen", "An Übergaben BSS↔TSS↔AMS↔SD versanden Tickets & Eskalationen."),
+    ("Personen- statt Prozessabhängigkeit", "„SO kennt Service am besten“ → Key-Person-Risiko, keine Skalierung, keine Transparenz."),
+]
+py = 30
+for i, (t, d) in enumerate(probs):
+    add_rect(s, 74, py, 79, 8.6, WHITE, line=LINE_GREY, line_w=0.75, round_=True)
+    add_rect(s, 74, py, 0.7, 8.6, RED)
+    add_text(s, 75.4, py + 0.5, 77, 3.4, [("", {"runs": [(f"P{i+1}  ", {"bold": True, "color": RED, "size": 8.5}),
+             (t, {"bold": True, "color": DARK, "size": 10})]})])
+    add_text(s, 75.4, py + 4.0, 77, 4.2, [(d, {"size": 8.5, "color": GREY_TXT})], line_spacing=1.02)
+    py += 9.3
+add_text(s, 7, 84.0, 146, 3.5,
+         [("", {"runs": [("Kernbefund:  ", {"bold": True, "color": RED, "size": 10}),
+             ("Die IPS hat die richtigen Bausteine, aber keinen Dirigenten — Koordination ist Privatsache "
+              "des Service Owners. Genau hier fordert BSS die „dedizierte Ressource“.", {"color": GREY_TXT, "size": 10})]})])
+
+# ==========================================================================
+# SLIDE 11 -- Zielmodell: Operations-Klammer (Soll)
+# ==========================================================================
+s = prs.slides.add_slide(BLANK)
+slide_header(s, "OPERATIONS · ZIELMODELL", "Eine Klammer trennt „WAS“ vom „WIE“ und bündelt die Koordination", 11)
+add_text(s, 7, 19.3, 146, 4,
+         [("Der Service Owner bleibt fürs Ergebnis (WAS) accountable. Die operative Koordination über "
+           "alle Provider und internen Einheiten (WIE) übernimmt ein Service Delivery Manager.",
+           {"size": 10.5, "color": GREY_TXT})], line_spacing=1.12)
+
+# --- Fluss links: SO -> SDM -> Liefereinheiten ---
+add_rect(s, 7, 25, 42, 8, ORANGE, round_=True)
+add_text(s, 7, 25, 42, 8, [("Service Owner", {"size": 10.5, "bold": True, "color": WHITE, "align": PP_ALIGN.CENTER}),
+                           ("Ergebnis · WAS", {"size": 8.3, "color": RGBColor(0xFD,0xE6,0xCC), "align": PP_ALIGN.CENTER})], anchor=MSO_ANCHOR.MIDDLE)
+connect(s, 28, 33, 28, 36, GREEN, 1.5)
+add_rect(s, 7, 36, 42, 8.5, ORANGE_LT, line=PURPLE, line_w=1.25, round_=True)
+add_text(s, 7, 36, 42, 8.5, [("Service Delivery Manager", {"size": 10.5, "bold": True, "color": RGBColor(0x7a,0x3d,0x05), "align": PP_ALIGN.CENTER}),
+                             ("Koordination · WIE   (neu)", {"size": 8.3, "color": RGBColor(0xB4,0x53,0x1A), "align": PP_ALIGN.CENTER})], anchor=MSO_ANCHOR.MIDDLE)
+add_text(s, 30, 32.4, 19, 3, [("Ziele, SLA →", {"size": 7.5, "italic": True, "color": GREEN})])
+
+# Liefereinheiten-Reihe
+deliv = [("AMS · DXC", PURPLE), ("weitere AMS /\nOps-Provider", PURPLE),
+         ("TSS · Infra-Ops", HOMEBASE), ("Service Desk\n(L1)", HOMEBASE), ("Regional\nSupport Center", HOMEBASE)]
+dw = 8.0; dgap = 0.5; dx0 = 7; dy = 49
+for i, (t, edge) in enumerate(deliv):
+    dx = dx0 + i * (dw + dgap)
+    connect(s, 28, 44.5, dx + dw / 2, dy, GREEN, 1.0)
+for i, (t, edge) in enumerate(deliv):
+    dx = dx0 + i * (dw + dgap)
+    bg = RGBColor(0xEB,0xE6,0xF5) if edge == PURPLE else HOMEBASE_LT
+    add_rect(s, dx, dy, dw, 8.5, bg, line=edge, line_w=0.9, round_=True)
+    lines = t.split("\n")
+    add_text(s, dx, dy, dw, 8.5, [(lines[0], {"size": 7.0, "bold": True, "color": DARK, "align": PP_ALIGN.CENTER})]
+             + [(l, {"size": 6.5, "color": GREY_TXT, "align": PP_ALIGN.CENTER}) for l in lines[1:]],
+             anchor=MSO_ANCHOR.MIDDLE, line_spacing=0.95)
+
+# --- Klammer rechts: SIAM im IPS MO ---
+add_rect(s, 84, 25, 69, 22.5, RGBColor(0xE3,0xF2,0xEA), line=GREEN, line_w=1.25, round_=True)
+add_text(s, 85.5, 26, 66, 6, [("KLAMMER: Service Integration & Operations (SIAM)", {"size": 10, "bold": True, "color": RGBColor(0x1c,0x4a,0x35)}),
+                              ("verankert im IPS Management Office", {"size": 8.5, "italic": True, "color": GREEN})], line_spacing=1.05)
+gov = ["Practice Supplier Mgmt", "Service Level Mgmt", "Major Incident Mgmt", "Prozess-Owner (Inc/Prob/Change)"]
+for i, g in enumerate(gov):
+    gx = 85.5 + (i % 2) * 33.5; gy = 33 + (i // 2) * 6.7
+    add_rect(s, gx, gy, 32, 5.8, WHITE, line=GREEN, line_w=0.75, round_=True)
+    add_text(s, gx, gy, 32, 5.8, [(g, {"size": 8.3, "bold": True, "color": RGBColor(0x1c,0x4a,0x35), "align": PP_ALIGN.CENTER})], anchor=MSO_ANCHOR.MIDDLE)
+connect(s, 84, 40, 49, 40.2, GREEN, 1.25, dash=True)
+add_text(s, 50, 44.6, 34, 3.5, [("Standards · Verträge · Prozesse", {"size": 7.5, "italic": True, "color": GREEN})])
+
+# --- Unten: neue Rollen + Verortung ---
+add_text(s, 7, 60, 146, 3.5, [("Zusätzlich benötigt — zwei neue Rollen, ein neuer Ort", {"size": 12.5, "bold": True, "color": DARK})])
+newroles = [
+    (ORANGE, "Service Delivery Manager (neu)", "Die „dedizierte Ressource“, die BSS fordert: koordiniert alle AMS-Provider + interne Support-Einheiten (TSS, Service Desk, RSC) je Service-Cluster."),
+    (GREEN, "SIAM / Service Integration Lead (neu)", "Führt die Klammer: End-to-End-Prozesse, Provider-Integration, konsolidierte Service- & Kostensicht."),
+    (HOMEBASE, "Verortung: IPS Management Office", "Neutral über BSS/TSS/Cyber; Andockpunkte (Governance, ITSM, Practice Supplier Mgmt, ServiceNow) sind dort schon vorhanden."),
+]
+cw = 47.3
+for i, (col, t, d) in enumerate(newroles):
+    lx = 7 + i * (cw + 2.5)
+    add_rect(s, lx, 64.5, cw, 17, WHITE, line=LINE_GREY, line_w=0.9, round_=True)
+    add_rect(s, lx, 64.5, cw, 0.9, col)
+    add_text(s, lx + 1.6, 66, cw - 3, 4, [(t, {"size": 10.3, "bold": True, "color": DARK})], line_spacing=1.05)
+    add_text(s, lx + 1.6, 71.5, cw - 3, 9, [(d, {"size": 9, "color": GREY_TXT})], line_spacing=1.12)
+
+add_text(s, 7, 83.5, 146, 4,
+         [("", {"runs": [("Fazit:  ", {"bold": True, "color": GREEN, "size": 10}),
+             ("Keine neue Säule — eine Klammer. SIAM im IPS MO mit dem SDM als operativem Koordinator "
+              "entlastet die Service Owner, bündelt die Provider-Steuerung und schließt die Schnittstellen.",
+              {"color": GREY_TXT, "size": 10})]})])
 
 prs.save(DST)
 print("saved", DST, "with", len(prs.slides._sldIdLst), "slides")
