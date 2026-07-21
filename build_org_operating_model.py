@@ -868,5 +868,117 @@ for i, (r, m) in enumerate(risks):
              [("", {"runs": [(r + "  ", {"size": 7.8, "bold": True, "color": RED}),
                              ("→ " + m, {"size": 7.8, "color": GREY_TXT})]})], anchor=MSO_ANCHOR.MIDDLE, line_spacing=1.0)
 
+# ==========================================================================
+# SLIDE 14 -- SDM-Pool: zentral verankert, dezentral eingesetzt
+# ==========================================================================
+s = prs.slides.add_slide(BLANK)
+slide_header(s, "SDM-VERORTUNG", "Nicht einer, sondern ein Pool — zentral verankert, dezentral eingesetzt", 14)
+add_text(s, 7, 19.3, 146, 4,
+         [("Je Service-Cluster ein SDM (große Cluster ggf. ein Team). Alle SDMs haben dieselbe Heimat "
+           "im IPS MO und werden fachlich an die Cluster ausgeliehen.", {"size": 10.5, "color": GREY_TXT})], line_spacing=1.1)
+
+# Org-Kette (zentriert)
+cx = 56; cw = 48
+add_rect(s, cx, 25, cw, 5.6, HOMEBASE, round_=True)
+add_text(s, cx, 25, cw, 5.6, [("IPS Management Office", {"size": 10.5, "bold": True, "color": WHITE, "align": PP_ALIGN.CENTER})], anchor=MSO_ANCHOR.MIDDLE)
+connect(s, cx + cw/2, 30.6, cx + cw/2, 32.2, LINE_GREY, 1.25)
+add_rect(s, cx, 32.2, cw, 5.6, RGBColor(0x2E,0x7D,0x5B), round_=True)
+add_text(s, cx, 32.2, cw, 5.6, [("Service Integration & Operations (SIAM)", {"size": 10, "bold": True, "color": WHITE, "align": PP_ALIGN.CENTER})], anchor=MSO_ANCHOR.MIDDLE)
+connect(s, cx + cw/2, 37.8, cx + cw/2, 39.4, LINE_GREY, 1.25)
+add_rect(s, cx, 39.4, cw, 5.6, ORANGE, round_=True)
+add_text(s, cx, 39.4, cw, 5.6, [("Head of Service Delivery (führt den SDM-Pool)", {"size": 9.5, "bold": True, "color": WHITE, "align": PP_ALIGN.CENTER})], anchor=MSO_ANCHOR.MIDDLE)
+
+# SDM-Reihe (Homebase-Zugehörigkeit = orange, solid) + Cluster-Chips (dotted)
+sdms = [("SDM · SAP / BSS", "SAP & Business Apps"),
+        ("SDM · Workplace", "Modern Workplace"),
+        ("SDM · Network", "Network & Connectivity"),
+        ("SDM · Compute/IAM", "Compute · Cloud · IAM"),
+        ("SDM · Service Desk", "ITSM / End-User (quer)")]
+sw = 28.0; sgap = 1.5; sx0 = 7; srow = 50; crow = 59
+for i, (sd, cl) in enumerate(sdms):
+    lx = sx0 + i * (sw + sgap)
+    connect(s, cx + cw/2, 45, lx + sw/2, srow, ORANGE, 1.0)
+for i, (sd, cl) in enumerate(sdms):
+    lx = sx0 + i * (sw + sgap)
+    add_rect(s, lx, srow, sw, 6.5, ORANGE_LT, line=ORANGE, line_w=1.0, round_=True)
+    add_text(s, lx, srow, sw, 6.5, [(sd, {"size": 8.8, "bold": True, "color": RGBColor(0x7a,0x3d,0x05), "align": PP_ALIGN.CENTER})], anchor=MSO_ANCHOR.MIDDLE)
+    connect(s, lx + sw/2, srow + 6.5, lx + sw/2, crow, PURPLE, 0.9, dash=True)
+    add_rect(s, lx, crow, sw, 6.5, HOMEBASE_LT, line=HOMEBASE, line_w=0.9, round_=True)
+    add_text(s, lx, crow, sw, 6.5, [("Cluster:", {"size": 7, "color": HOMEBASE, "align": PP_ALIGN.CENTER}),
+                                    (cl, {"size": 8, "bold": True, "color": DARK, "align": PP_ALIGN.CENTER})], anchor=MSO_ANCHOR.MIDDLE, line_spacing=0.95)
+
+# Legende + Sizing-Regel
+add_text(s, 7, 67.5, 146, 3,
+         [("", {"runs": [("——  ", {"color": ORANGE, "bold": True, "size": 9}), ("Solid-Line: Heimat & Führung (Head of SDM)      ", {"size": 9, "color": GREY_TXT}),
+                         ("- - -  ", {"color": PURPLE, "bold": True, "size": 9}), ("Dotted-Line: fachlicher Einsatz im Cluster", {"size": 9, "color": GREY_TXT})]})])
+
+add_rect(s, 7, 71.5, 146, 12.5, LIGHT_BG, round_=True)
+add_text(s, 9, 72.4, 142, 4, [("Sizing-Regel — nicht nach Anzahl Services, sondern nach Koordinationslast", {"size": 10.5, "bold": True, "color": DARK})])
+add_text(s, 9, 76.4, 142, 7,
+         [("Maßstab: Zahl beteiligter Provider + interner Einheiten, Kritikalität, Ticketvolumen. Faustwert: "
+           "ein SDM steuert eine große oder eine Handvoll mittlerer Services. Kleine/verwandte Services bündeln; "
+           "große Cluster (z. B. SAP/DXC) ggf. mit zweitem SDM. Head of Service Delivery balanciert die Last über den Pool.",
+           {"size": 9.5, "color": GREY_TXT})], line_spacing=1.15)
+
+# ==========================================================================
+# SLIDE 15 -- Zentral oder verteilt? Die Verortungsentscheidung
+# ==========================================================================
+s = prs.slides.add_slide(BLANK)
+slide_header(s, "VERORTUNGSENTSCHEIDUNG", "Zentraler SDM-Pool statt verteilter Berichtslinien", 15)
+add_text(s, 7, 19.3, 146, 5,
+         [("", {"runs": [("Entscheidend ist, was „verteilt“ meint:  ", {"bold": True, "color": DARK, "size": 11.5}),
+             ("verteilter ", {"size": 11.5, "color": GREY_TXT}), ("Sitz/Einsatz", {"bold": True, "color": HOMEBASE, "size": 11.5}),
+             (" ist gut — verteilte ", {"size": 11.5, "color": GREY_TXT}), ("Berichtslinie", {"bold": True, "color": RED, "size": 11.5}),
+             (" in die Liefereinheiten ist riskant.", {"size": 11.5, "color": GREY_TXT})]})], line_spacing=1.15)
+
+# Zwei Spalten Vergleich
+add_rect(s, 7, 27, 71.5, 26, WHITE, line=GREEN, line_w=1.25, round_=True)
+add_rect(s, 7, 27, 71.5, 5, RGBColor(0xE3,0xF2,0xEA))
+add_text(s, 8.8, 27, 68, 5, [("✓  Zentraler Pool im IPS MO  (Empfehlung)", {"size": 11, "bold": True, "color": RGBColor(0x1c,0x4a,0x35)})], anchor=MSO_ANCHOR.MIDDLE)
+add_text(s, 9, 33, 68, 19,
+         [(x, {"size": 9.3, "color": DARK, "space_after": 4}) for x in [
+             "•  Neutrales Mandat über BSS / TSS / Cyber",
+             "•  Ein Standard: Methode, KPIs, ServiceNow, Vertretung",
+             "•  Gegenseitige Vertretung & Karrierepfad im Pool",
+             "•  Head of SDM balanciert Kapazität über Cluster",
+             "•  Kein Rückfall in „pro-Service-Owner“-Silos"]], line_spacing=1.1)
+
+add_rect(s, 81.5, 27, 71.5, 26, WHITE, line=RED, line_w=1.25, round_=True)
+add_rect(s, 81.5, 27, 71.5, 5, RGBColor(0xFB,0xE4,0xE1))
+add_text(s, 83.3, 27, 68, 5, [("✗  SDMs berichten IN die Einheiten  (Risiko)", {"size": 11, "bold": True, "color": RED})], anchor=MSO_ANCHOR.MIDDLE)
+add_text(s, 83.5, 33, 68, 19,
+         [(x, {"size": 9.3, "color": DARK, "space_after": 4}) for x in [
+             "•  Peer koordiniert Peer → schwaches Mandat",
+             "•  Loyalitätskonflikt zur eigenen Einheit",
+             "•  „Acht Dialekte“: Methode/KPI/Tool driften",
+             "•  Head of SDM trägt Verantwortung ohne Autorität",
+             "•  Faktischer Rückfall zum heutigen Status quo"]], line_spacing=1.1)
+
+# Head-of-SDM-Hybrid Verdict
+add_rect(s, 7, 56, 146, 13, ORANGE_LT, round_=True)
+add_rect(s, 7, 56, 1.0, 13, ORANGE)
+add_text(s, 9.5, 56.8, 142, 4, [("Head of SDM zentral + SDMs verteilt — geht das?", {"size": 11.5, "bold": True, "color": RGBColor(0xB4,0x53,0x1A)})])
+add_text(s, 9.5, 60.6, 142, 8,
+         [("", {"runs": [
+             ("Ja — unter Bedingungen. ", {"bold": True, "color": DARK, "size": 10.5}),
+             ("Tragfähig, solange der Head of SDM eine fachliche ", {"color": GREY_TXT, "size": 10.5}),
+             ("Solid-Line", {"bold": True, "color": DARK, "size": 10.5}),
+             (" zu allen SDMs hat und Methode, KPIs, Tooling sowie das einheitenübergreifende Mandat "
+              "zentral bleiben. Dann ist es faktisch der zentrale Pool mit dezentralem Einsatz — nicht "
+              "„verteilt“ im problematischen Sinn. Ohne diese Guardrails kippt es in die rechte Spalte.",
+              {"color": GREY_TXT, "size": 10.5})]})], line_spacing=1.15)
+
+# Fazit-Zeile
+add_rect(s, 7, 71.5, 146, 12, RGBColor(0xE3,0xF2,0xEA), round_=True)
+add_text(s, 9.5, 72.3, 142, 4, [("Empfehlung", {"size": 10.5, "bold": True, "color": RGBColor(0x1c,0x4a,0x35)})])
+add_text(s, 9.5, 76, 142, 7,
+         [("", {"runs": [
+             ("Zielbild: ", {"bold": True, "color": DARK, "size": 10}),
+             ("zentraler SDM-Pool im IPS MO. ", {"color": GREY_TXT, "size": 10}),
+             ("Übergang / politischer Kompromiss: ", {"bold": True, "color": DARK, "size": 10}),
+             ("Head of SDM zentral, SDMs co-located in den Clustern, aber mit Solid-Line zum Head of SDM — "
+              "als Phase-3-Etappe der Migration. Entscheidend ist die Berichtslinie, nicht der Schreibtisch.",
+              {"color": GREY_TXT, "size": 10})]})], line_spacing=1.15)
+
 prs.save(DST)
 print("saved", DST, "with", len(prs.slides._sldIdLst), "slides")

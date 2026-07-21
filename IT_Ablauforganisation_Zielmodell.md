@@ -6,10 +6,12 @@
 
 Begleitende Deliverables:
 - **Interaktive Fassung (Web):** siehe Artifact-Link in der Konversation
-- **CIO-Kurzfassung (PPTX, 13 Slides):** `2026_07_08_IT_Ablauforganisation_Homebase_Mannschaft.pptx`
+- **CIO-Kurzfassung (PPTX, 15 Slides):** `2026_07_08_IT_Ablauforganisation_Homebase_Mannschaft.pptx`
   (erzeugt via `build_org_operating_model.py`) — inkl. Ist/Soll der Operations-Koordination
-  (Slides 10–11), SDM-Rollenprofil (12) und Migrations-Roadmap (13)
+  (Slides 10–11), SDM-Rollenprofil (12), Migrations-Roadmap (13), SDM-Pool-Modell (14)
+  und Verortungsentscheidung zentral vs. verteilt (15)
 - **Rollenbeschreibung SDM:** `Rollenbeschreibung_Service_Delivery_Manager.md`
+  (inkl. Pool-Modell, Head of Service Delivery, Cluster-Zuordnung)
 - **Kapazitäts-Allokationsmatrix (Excel-Template):**
   `2026_07_08_Kapazitaets_Allokationsmatrix.xlsx` (erzeugt via `build_capacity_matrix.py`)
 
@@ -330,6 +332,15 @@ Die Klammer trennt **WAS** (Ergebnis) von **WIE** (Koordination):
 
 **Fluss:** Service Owner (Ziel & SLA) → SDM (plant & steuert die Kette) →
 Provider + interne Einheiten liefern (OLA/UC) → SIAM misst End-to-End-SLA & eskaliert.
+
+**SDM-Pool statt Einzelstelle:** Es gibt *mehrere* SDMs — je Service-Cluster einen,
+geführt von einem **Head of Service Delivery** im IPS MO. Alle SDMs teilen dieselbe
+Heimat (Solid-Line, zentral) und werden fachlich an die Cluster ausgeliehen
+(Dotted-Line, dezentral). **Verteilter Sitz ist gut, verteilte Berichtslinie in die
+Liefereinheiten ist riskant** (Peer-koordiniert-Peer, Standard-Drift, Rückfall in
+Silos). Ein Head of SDM zentral mit Solid-Line zu co-located SDMs ist tragfähig —
+faktisch der zentrale Pool mit dezentralem Einsatz. Details siehe
+`Rollenbeschreibung_Service_Delivery_Manager.md`.
 
 **Zusätzlich benötigte Rollen/Einheiten**
 

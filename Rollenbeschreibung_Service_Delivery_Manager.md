@@ -2,8 +2,9 @@
 
 **Organisation:** IPS (Integrated Processes & Solutions)
 **Einheit / Heimat:** Service Integration & Operations (SIAM) — IPS Management Office
-**Berichtslinie:** SIAM / Service Integration Lead
-**Spannweite:** 1 SDM je Service-Cluster (Bündel fachlich verwandter Services)
+**Berichtslinie:** Head of Service Delivery → SIAM / Service Integration Lead
+**Spannweite:** 1 SDM je Service-Cluster (Bündel fachlich verwandter Services);
+mehrere SDMs bilden gemeinsam einen **Pool**
 
 ---
 
@@ -28,6 +29,63 @@ und **entlastet den Service Owner vom operativen „Wie"**. Der SDM ist der
 | Berichtet an | SIAM / Service Integration Lead |
 | Enge Zusammenarbeit | Service Owner (BSS / Fach-Einheit), Practice Supplier Management, TSS-Operations, zentraler Service Desk, Regional Support Center (RSC), AMS-/Ops-Dienstleister (z. B. DXC) |
 | Führungscharakter | **Laterale Führung** — fachliche Koordination ohne disziplinarische Weisungsbefugnis |
+
+---
+
+## Pool-Modell & Verortung — einer oder mehrere SDMs?
+
+Es gibt **nicht einen SDM, sondern einen Pool**. Ein einzelner SDM kann nicht
+alle Services koordinieren; skaliert wird über **Service-Cluster** (je ein SDM,
+große Cluster ggf. ein kleines Team). Ein **Head of Service Delivery** führt den
+Pool und berichtet an den SIAM Lead.
+
+**Prinzip: zentral verankert, dezentral eingesetzt** (das Homebase-/Mannschaft-
+Prinzip, angewandt auf die Rolle selbst):
+
+- **Heimat / Führung (Solid-Line):** alle SDMs gehören zu SIAM im IPS Management
+  Office und werden vom Head of Service Delivery geführt.
+- **Fachlicher Einsatz (Dotted-Line):** jeder SDM ist einem Service-Cluster
+  zugeordnet und arbeitet dort eng mit Service Owner(n) und Liefereinheiten.
+
+**Illustrative Cluster-Zuordnung** (Schnitt entlang der Value Streams):
+
+| Service-Cluster | SDM-Bedarf (Richtwert) |
+|---|---|
+| SAP & Business Applications (DXC-lastig) | 1 SDM, ggf. 2 (großes AMS-Volumen) |
+| Modern Workplace & Collaboration | 1 SDM |
+| Network & Connectivity | 1 SDM |
+| Compute · Cloud · Identity & Access | 1 SDM (ggf. IAM geteilt) |
+| Service Desk / ITSM (querschnittlich) | 1 SDM |
+| Data, Analytics & KI | mit SAP/BSS-Cluster geteilt |
+
+**Sizing-Regel:** nicht nach Anzahl Services, sondern nach **Koordinationslast**
+(Zahl beteiligter Provider + interner Einheiten, Kritikalität, Ticketvolumen).
+Faustwert: ein SDM steuert eine große oder eine Handvoll mittlerer Services.
+
+### Warum die SDMs NICHT in die Liefereinheiten verteilt werden sollten
+
+Entscheidend ist, was „verteilt" meint: verteilter **Sitz/Einsatz** ist gut —
+verteilte **Berichtslinie** in BSS/TSS/Cyber ist riskant.
+
+| Zentraler Pool (IPS MO) — empfohlen | SDMs berichten IN die Einheiten — Risiko |
+|---|---|
+| Neutrales Mandat über BSS / TSS / Cyber | Peer koordiniert Peer → schwaches Mandat |
+| Ein Standard: Methode, KPIs, ServiceNow | „Acht Dialekte": Methode/KPI/Tool driften |
+| Gegenseitige Vertretung & Karrierepfad | Loyalitätskonflikt zur eigenen Einheit |
+| Head of SDM balanciert Kapazität | Verantwortung ohne Autorität beim Head of SDM |
+| Kein Rückfall in „pro-Service-Owner"-Silos | Faktischer Rückfall zum heutigen Status quo |
+
+### Kann der Head of SDM zentral sitzen und die SDMs verteilt?
+
+**Ja — unter Bedingungen.** Tragfähig, solange der Head of Service Delivery eine
+fachliche **Solid-Line** zu allen SDMs hat und Methode, KPIs, Tooling sowie das
+einheitenübergreifende Mandat zentral bleiben. Dann ist es faktisch der zentrale
+Pool mit dezentralem Einsatz — nicht „verteilt" im problematischen Sinn.
+
+- **Zielbild:** zentraler SDM-Pool im IPS MO.
+- **Übergang / politischer Kompromiss:** Head of SDM zentral, SDMs co-located in
+  den Clustern, aber mit **Solid-Line zum Head of SDM** — als Phase-3-Etappe der
+  Migration. Entscheidend ist die Berichtslinie, nicht der Schreibtisch.
 
 ---
 
