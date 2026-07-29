@@ -72,8 +72,9 @@ text(8, 3.2, 120, 6, [("Team-Building & Scope Workshop", {"size": 25, "bold": Tr
 text(8, 10.2, 120, 4, [("", {"runs": [
     ("Digital Workplace & Support", {"size": 13, "bold": True, "color": WHITE}),
     ("     „Wir sind für Sie da.“", {"size": 13, "italic": True, "color": MUTED_W})]})])
-text(120, 4.2, 33, 8, [("Abteilung", {"size": 9, "color": MUTED_W, "align": PP_ALIGN.RIGHT}),
-                       ("Alexander Passaro", {"size": 12, "bold": True, "color": WHITE, "align": PP_ALIGN.RIGHT})])
+text(112, 3.0, 41, 11, [("Abteilung", {"size": 8.5, "color": MUTED_W, "align": PP_ALIGN.RIGHT}),
+                        ("Alexander Passaro", {"size": 12, "bold": True, "color": WHITE, "align": PP_ALIGN.RIGHT}),
+                        ("Termin: KW 42 / 43 · Okt 2026", {"size": 9.5, "bold": True, "color": ORANGE, "align": PP_ALIGN.RIGHT})])
 
 # ---- Ziele ----
 text(7, 17.2, 100, 3, [("ZIELE DES WORKSHOPS", {"size": 10, "bold": True, "color": NAVY})])
@@ -131,6 +132,93 @@ text(9.5, 78.5, 143, 8, [("", {"runs": [
     ("Was wir mitnehmen:  ", {"size": 10.5, "bold": True, "color": NAVY}),
     ("Team-Charter & Spielregeln  ·  Scope-Landkarte (in/out + Schnittstellen)  ·  konkrete "
      "Commitments  ·  Follow-up-Termin", {"size": 10.5, "color": GREY})]})], anchor=MSO_ANCHOR.MIDDLE, ls=1.12)
+
+# ======================================================================
+# SLIDE 2 -- Unser Team (alle Mitglieder)
+# ======================================================================
+s = prs.slides.add_slide(prs.slide_layouts[6])
+rect(0, 0, 160, 90, WHITE)
+rect(0, 0, 160, 13, NAVY); rect(0, 0, 160, 1.4, ORANGE)
+text(8, 2.6, 120, 5, [("Unser Team", {"size": 22, "bold": True, "color": WHITE})])
+text(8, 8.4, 120, 3.5, [("Digital Workplace & Support · drei Teams, eine Mannschaft", {"size": 12, "italic": True, "color": MUTED_W})])
+text(112, 4.4, 41, 6, [("KW 42 / 43 · Okt 2026", {"size": 10, "bold": True, "color": ORANGE, "align": PP_ALIGN.RIGHT})])
+
+team_data = [
+    ("IT Support & ITSM Platform Services", "Patrick Böhme",
+     ["Christian Falk", "Dieter Munk", "Otto Sliz", "Lea Juros", "Cem Tatar",
+      "Gerd Stürner", "Oliver Gallus", "Jose Ricardo Bock", "Tanja Kohler"]),
+    ("Modern Workplace & Experience", "Christopher Hahn",
+     ["Philippe Duboc", "Sven Engel", "Mathias Heisig", "Thomas Bernecker", "Dunja Akar",
+      "Philipp Heckhausen", "Linda Finner", "Sascha Kremp", "Constanze Pretzler"]),
+    ("Client Services", "Moritz Heller",
+     ["Pascal Mörmann", "Edgar Sattler", "Tim Zimmer", "Christoph Walker", "Magali Münzenrieder"]),
+]
+cw = 47.3; cx0 = 7
+for i, (tname, lead, members) in enumerate(team_data):
+    lx = cx0 + i * (cw + 2.5)
+    # Kopf
+    rect(lx, 16.5, cw, 11, NAVY, round_=True)
+    text(lx + 1.8, 17.2, cw - 3.4, 5, [(tname, {"size": 10.5, "bold": True, "color": WHITE})], ls=1.02)
+    text(lx + 1.8, 23.0, cw - 3.4, 3.5, [("", {"runs": [("Leitung:  ", {"size": 8.5, "color": MUTED_W}),
+                                                        (lead, {"size": 10, "bold": True, "color": ORANGE})]})])
+    # Mitglieder
+    rect(lx, 29, cw, 55, WHITE, line=LINE, lw=1.0, round_=True)
+    rect(lx, 29, cw, 4.2, LIGHT)
+    text(lx + 1.8, 29, cw - 3, 4.2, [(f"{len(members)} Mitglieder", {"size": 9, "bold": True, "color": GREY})], anchor=MSO_ANCHOR.MIDDLE)
+    paras = [("", {"space_after": 3, "runs": [("•  ", {"color": NAVY, "bold": True, "size": 11}),
+                                              (m, {"color": DARK, "size": 11})]}) for m in members]
+    text(lx + 1.8, 34.5, cw - 3, 48, paras, ls=1.12)
+
+text(7, 85.2, 146, 3.5, [("Reihenfolge ohne Wertung · Stand Org-Aufstellung", {"size": 8.5, "italic": True, "color": LINE})])
+
+# ======================================================================
+# SLIDE 3 -- Agenda & Zeitplan
+# ======================================================================
+s = prs.slides.add_slide(prs.slide_layouts[6])
+rect(0, 0, 160, 90, WHITE)
+rect(0, 0, 160, 13, NAVY); rect(0, 0, 160, 1.4, ORANGE)
+text(8, 2.6, 120, 5, [("Workshop-Agenda", {"size": 22, "bold": True, "color": WHITE})])
+text(8, 8.4, 120, 3.5, [("Team-Building & Scope · Vorschlag für einen gemeinsamen Tag", {"size": 12, "italic": True, "color": MUTED_W})])
+
+# Termin-Banner
+rect(7, 15.5, 146, 6.5, LIGHT, line=LINE, lw=0.75, round_=True); rect(7, 15.5, 1.0, 6.5, ORANGE)
+text(9.5, 15.5, 143, 6.5, [("", {"runs": [
+    ("Termin:  ", {"size": 11.5, "bold": True, "color": NAVY}),
+    ("KW 42 / 43  ·  12.–25. Oktober 2026", {"size": 11.5, "bold": True, "color": DARK}),
+    ("     Empfehlung: 1 gemeinsamer Tag, ca. 09:00–17:00, extern/offsite", {"size": 10.5, "color": GREY})]})],
+    anchor=MSO_ANCHOR.MIDDLE)
+
+def agenda_col(lx, col, col_lt, label, rows):
+    rect(lx, 24, 72, 59, WHITE, line=LINE, lw=1.0, round_=True)
+    rect(lx, 24, 72, 6.5, col, round_=True); rect(lx, 27.5, 72, 3, col)
+    text(lx + 2, 24, 68, 6.5, [(label, {"size": 11.5, "bold": True, "color": WHITE})], anchor=MSO_ANCHOR.MIDDLE)
+    paras = []
+    for tm, tx, pause in rows:
+        tcol = col_lt if pause else col
+        paras.append(("", {"space_after": 3.5, "runs": [
+            (f"{tm}   ", {"size": 10, "bold": True, "color": (GREY if pause else col)}),
+            (tx, {"size": 10, "italic": pause, "color": (GREY if pause else DARK)})]}))
+    text(lx + 2.2, 32, 68, 50, paras, ls=1.08)
+
+agenda_col(7, ORANGE, ORANGE_LT, "VORMITTAG · Miteinander", [
+    ("09:00", "Ankommen & Begrüßung (A. Passaro)", False),
+    ("09:20", "Warum wir hier sind — Zielbild der Abteilung", False),
+    ("09:45", "Kennenlernen: Vorstellung bewusst gemischt", False),
+    ("10:30", "Pause", True),
+    ("10:45", "Skills- & Stärken-Landkarte", False),
+    ("11:30", "Erwartungen & Werte → Team-Charter", False),
+    ("12:30", "Mittagspause", True),
+])
+agenda_col(81, BLUE, BLUE_LT, "NACHMITTAG · Auftrag & Scope", [
+    ("13:30", "Unsere Mission & sechs Leitmotive", False),
+    ("14:00", "Scope je Säule: In/Out (3 Teams parallel)", False),
+    ("15:00", "Schnittstellen: intern & nach außen", False),
+    ("15:30", "Pause", True),
+    ("15:45", "Scope-Landkarte konsolidieren", False),
+    ("16:15", "Zusammenarbeit & Rituale vereinbaren", False),
+    ("16:45", "Commitments & nächste Schritte", False),
+    ("17:00", "Abschluss & gemeinsamer Ausklang", False),
+])
 
 prs.save(DST)
 print("saved", DST, "with", len(prs.slides._sldIdLst), "slides")
