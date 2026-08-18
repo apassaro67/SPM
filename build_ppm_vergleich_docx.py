@@ -1,12 +1,12 @@
-"""Build Word-Bericht: ServiceNow SPM Pro vs. Planview vs. Planisware."""
+"""Build Word-Bericht: ServiceNow SPM Pro vs. Planisware."""
 from docx import Document
 from docx.shared import Pt, Cm, RGBColor, Inches
 from docx.enum.text import WD_ALIGN_PARAGRAPH
 from docx.enum.table import WD_ALIGN_VERTICAL, WD_TABLE_ALIGNMENT
-from docx.oxml.ns import qn, nsmap
+from docx.oxml.ns import qn
 from docx.oxml import OxmlElement
 
-DST = "/tmp/2026_10_15_PPM_Vergleich_SNOW_Planview_Planisware.docx"
+DST = "/tmp/2026_10_15_PPM_Vergleich_SNOW_Planisware.docx"
 
 # STIHL colors
 ORANGE   = RGBColor(0xF0, 0x7F, 0x12)
@@ -167,7 +167,7 @@ def add_callout(text, color_hex, title=None):
 # ============================================================
 p = doc.add_paragraph()
 p.alignment = WD_ALIGN_PARAGRAPH.LEFT
-r = p.add_run("ServiceNow SPM Pro vs. Planview vs. Planisware")
+r = p.add_run("ServiceNow SPM Pro vs. Planisware")
 r.bold = True
 r.font.name = "Calibri"
 r.font.size = Pt(24)
@@ -207,23 +207,25 @@ pPr.append(pBdr)
 add_heading("Executive Summary", level=1)
 
 add_para(
-    "Die Gartner-Leader Planview und Planisware sind im reinen Projekt-Management (Gantt, "
-    "Ressourcen, Finanzen) auf höchstem Niveau, aber Insellösungen. ServiceNow SPM Pro liegt "
-    "im Projekt-Management etwas dahinter, gewinnt jedoch durch Plattform-Integration, KI und "
-    "Extensibility deutlich an Boden.",
+    'Planisware ist der Gartner-Leader mit der höchsten „Completeness of Vision" und die '
+    "technische Referenz für tiefe Engineering-/R&D-Projekte (Stage-Gate, PEP). "
+    "ServiceNow SPM Pro liegt im reinen Projekt-Management-Kern etwas dahinter, gewinnt aber "
+    "durch Plattform-Integration, KI (Now Assist) und App-Engine-Extensibility deutlich an "
+    "Boden — und ist ein Leader im SPM-Quadranten (2024/2025).",
     space_after=8
 )
 add_para(
     "Für ein Unternehmen mit bestehender ServiceNow-Basis und aktivem SPM Demand-Management "
-    "ist die klare Empfehlung: ServiceNow SPM Pro als Ziel-Plattform, ergänzt durch App Engine "
-    "für spezifische Prozesse (z.B. Stage-Gate-PEP). Ein hybrider Ansatz mit Planisware im "
-    "R&D-Bereich bleibt als Hedge denkbar, ist aber wirtschaftlich meist unterlegen.",
+    "ist die klare Empfehlung: ServiceNow SPM Pro als strategische Ziel-Plattform, ergänzt "
+    "durch App Engine für spezifische Prozesse (z.B. Stage-Gate-PEP). Planisware bleibt als "
+    "Hedge-Option für den tiefsten R&D-Engineering-Bereich denkbar, ist aber wirtschaftlich "
+    "meist unterlegen.",
     space_after=12
 )
 
 add_callout(
     "ServiceNow SPM Pro empfohlen — Datenkontinuität, Betriebskontinuität und Time-to-Value "
-    "überwiegen deutlich die kleinen Funktionsvorteile der spezialisierten PM-Tools.",
+    "überwiegen deutlich die Funktionsvorteile des spezialisierten Engineering-PM-Tools.",
     color_hex="DDF1DE",
     title="🎯 Kernempfehlung"
 )
@@ -231,17 +233,7 @@ add_callout(
 # ============================================================
 # STECKBRIEFE
 # ============================================================
-add_heading("Steckbriefe der drei Player", level=1)
-
-# Planview
-add_heading('🏆 Planview — Leader mit höchster „Ability to Execute"', level=2)
-add_bullets([
-    "Historisch stärkster Enterprise-PPM-Player (Ex-Planview Enterprise One, AdaptiveWork)",
-    "Portfolio: Planview Portfolios, AdaptiveWork (Ex-Clarizen), LeanKit (Kanban), ProjectPlace",
-    "Kernstärken: Ressourcen-Optimierung, Kapazitätsplanung, Multi-Portfolio-Governance",
-    "Zielgruppe: große Enterprises mit reifem PMO",
-    "Preis-Level: hoch — komplexe Implementierung (12–18 Monate)",
-])
+add_heading("Steckbriefe der beiden Player", level=1)
 
 # Planisware
 add_heading('🎯 Planisware — Leader mit höchster „Completeness of Vision"', level=2)
@@ -249,7 +241,8 @@ add_bullets([
     "Referenz-Tool für Engineering-/R&D-Projekte (Stage-Gate, PEP)",
     "Kernstärken: Produktentwicklung, komplexe Ressourcen×Finanz-Verzahnung, Portfolio-Simulationen",
     "Zielgruppe: R&D-getriebene Unternehmen (Automotive, Pharma, Industrie — strukturell nah an STIHL)",
-    "Preis-Level: sehr hoch, personell-hungrig — dedizierte Experten nötig (18–24 Monate)",
+    "Preis-Level: sehr hoch, personell-hungrig — dedizierte Experten nötig (18–24 Monate Implementierung)",
+    "Betriebsmodell: Insellösung — kein nativer Anschluss an ITSM/HR/CSM/GRC",
 ])
 
 # ServiceNow
@@ -258,7 +251,8 @@ add_bullets([
     "Teil der Now Platform, native Integration mit ITSM, ITOM, HR, CSM, GRC",
     "Kernstärken: Plattform-Integration, Demand-to-Delivery, App Engine, Now Assist (KI)",
     "Zielgruppe: Enterprises mit vorhandener SNOW-Basis, Fokus auf End-to-End-Digitalisierung",
-    "Preis-Level: mittel bis hoch, aber Skaleneffekt bei bestehendem SNOW-Vertrag",
+    "Preis-Level: mittel bis hoch, aber deutlicher Skaleneffekt bei bestehendem SNOW-Vertrag",
+    "Betriebsmodell: durchgehende Plattform statt Tool-Silo",
 ])
 
 doc.add_page_break()
@@ -268,35 +262,35 @@ doc.add_page_break()
 # ============================================================
 add_heading("Head-to-Head: Projekt-Management-Fähigkeiten", level=1)
 add_para(
-    "Die folgende Matrix vergleicht die drei Player anhand von 16 Kriterien im Kontext "
+    "Die folgende Matrix vergleicht beide Player anhand von 16 Kriterien im Kontext "
     "Projekt-Management (5 Sterne = Best-in-Class).",
     italic=True, color=GREY_TXT, space_after=10
 )
 
 compare_rows = [
-    ("Klassische Projektplanung (Gantt, WBS, Meilensteine)", "★★★★★", "★★★★★", "★★★★"),
-    ("Multi-Projekt-Abhängigkeiten",                        "★★★★★", "★★★★★", "★★★★"),
-    ("Ressourcen-Management (Skills, Capacity, Optimierung)","★★★★★", "★★★★★", "★★★★"),
-    ("Was-wäre-wenn / Szenario-Analysen",                    "★★★★★", "★★★★★", "★★★★ (Pro)"),
-    ("Finanz-Management (Kosten, Forecasts, Investment)",    "★★★★★", "★★★★★", "★★★★"),
-    ("Programm-Management",                                  "★★★★★", "★★★★★", "★★★★"),
-    ("Stage-Gate / PEP-Prozesse",                            "★★★★",  "★★★★★", "★★★ / ★★★★ mit App Engine"),
-    ("Agile / Hybrid-PM (SAFe, Scrum)",                     "★★★★★", "★★★★",  "★★★★ (EAP Pro)"),
-    ("Reporting & Live-Dashboards",                          "★★★★★", "★★★★",  "★★★★★"),
-    ("KI / GenAI (Vorhersagen, Auto-Reports)",              "★★★",   "★★★",   "★★★★★ (Now Assist)"),
-    ("Zeiterfassung + Approval",                             "★★★★",  "★★★★★", "★★★★"),
-    ("Integration mit ITSM / bestehende SNOW-Landschaft",   "★★",    "★★",    "★★★★★ (nativ)"),
-    ("Extensibility / Low-Code Custom",                      "★★★",   "★★★",   "★★★★★ (App Engine)"),
-    ("User Experience / Familiarität bei SNOW-Kunden",       "★★",    "★★",    "★★★★"),
-    ("Time-to-Value bei bestehender SNOW-Basis",             "★",     "★",     "★★★★★"),
-    ("TCO (5J) bei bestehender SNOW-Basis",                  "★★",    "★",     "★★★★"),
+    ("Klassische Projektplanung (Gantt, WBS, Meilensteine)",  "★★★★★", "★★★★"),
+    ("Multi-Projekt-Abhängigkeiten",                          "★★★★★", "★★★★"),
+    ("Ressourcen-Management (Skills, Capacity, Optimierung)", "★★★★★", "★★★★"),
+    ("Was-wäre-wenn / Szenario-Analysen",                     "★★★★★", "★★★★ (Pro)"),
+    ("Finanz-Management (Kosten, Forecasts, Investment)",     "★★★★★", "★★★★"),
+    ("Programm-Management",                                   "★★★★★", "★★★★"),
+    ("Stage-Gate / PEP-Prozesse",                             "★★★★★", "★★★ / ★★★★ mit App Engine"),
+    ("Agile / Hybrid-PM (SAFe, Scrum)",                       "★★★★",  "★★★★ (EAP Pro)"),
+    ("Reporting & Live-Dashboards",                           "★★★★",  "★★★★★"),
+    ("KI / GenAI (Vorhersagen, Auto-Reports)",                "★★★",   "★★★★★ (Now Assist)"),
+    ("Zeiterfassung + Approval",                              "★★★★★", "★★★★"),
+    ("Integration mit ITSM / bestehende SNOW-Landschaft",     "★★",    "★★★★★ (nativ)"),
+    ("Extensibility / Low-Code Custom",                       "★★★",   "★★★★★ (App Engine)"),
+    ("User Experience / Familiarität bei SNOW-Kunden",        "★★",    "★★★★"),
+    ("Time-to-Value bei bestehender SNOW-Basis",              "★",     "★★★★★"),
+    ("TCO (5J) bei bestehender SNOW-Basis",                   "★",     "★★★★"),
 ]
 build_table(
-    headers=["Fähigkeit", "Planview", "Planisware", "ServiceNow SPM Pro"],
+    headers=["Fähigkeit", "Planisware", "ServiceNow SPM Pro"],
     rows=compare_rows,
-    col_widths_cm=[7.5, 3.0, 3.0, 3.5],
+    col_widths_cm=[9.0, 3.5, 4.5],
     header_fill=NAVY_HEX,
-    center_cols=[1, 2, 3],
+    center_cols=[1, 2],
 )
 doc.add_paragraph()
 
@@ -310,25 +304,18 @@ add_bullets([
     "Tiefe Stage-Gate-Prozesse für Produktentwicklung (STIHL EWW/PEP wäre hier grundsätzlich sehr gut aufgehoben)",
     "Sehr komplexe Ressourcen×Finanz×Zeit-Verschränkungen über hunderte parallele NPD-Projekte",
     "Referenz-Domäne: Automotive, Aerospace, Pharma R&D",
-    "ABER: Insel-Betrieb, kein Anschluss an ITSM/HR/CSM",
-])
-
-add_heading("Wo Planview überlegen ist", level=3, color=RED_HL)
-add_bullets([
-    "Portfolio-Optimierung + Kapazitätsplanung über sehr große PMOs",
-    "Skills-basierte Ressourcen-Matching (Best-in-Class)",
-    "Adaptive PM (klassisch/agil/hybrid) auf einheitlicher Datenbasis",
-    "ABER: komplexe Implementierung, hohe TCO, kein SNOW-Anschluss",
+    "Portfolio-Simulationen und Was-wäre-wenn-Analysen auf sehr großem Datenbestand",
+    "ABER: Insel-Betrieb, kein Anschluss an ITSM/HR/CSM, hoher Betriebs- und Trainingsaufwand",
 ])
 
 add_heading("Wo ServiceNow SPM Pro überlegen ist", level=3, color=GREEN)
 add_bullets([
     "Plattform-Integration — Demand aus ITSM fließt direkt in Projekte",
-    "Time-to-Value — Team + Betrieb + UI bereits bekannt",
+    "Time-to-Value — Team, Betrieb und UI bereits bekannt",
     "KI durchgängig — Now Assist für Reporting, Risikofrüherkennung, Story Generation",
     "Erweiterbarkeit über App Engine — spezifische PEP-Steps ohne 3rd-Party-Tool nachbaubar",
     "Ganzheitliche Sicht über IT-Projekte, Business-Projekte, HR-Projekte, Compliance",
-    "ABER: in tiefstem Engineering-PM etwas weniger reif als spezialisierte Tools",
+    "ABER: in tiefstem Engineering-PM etwas weniger reif als das spezialisierte Tool",
 ])
 
 doc.add_page_break()
@@ -358,7 +345,7 @@ argu_rows = [
     ("3", "UI-Konsistenz — Anwender kennen SNOW-Look, deutlich geringerer Change-Aufwand",
          "~ 200 k€ eingesparte Trainings"),
     ("4", "TCO — Add-on zur bestehenden Plattform statt Zweitvendor + Integration",
-         "~ 1,5–2,5 M€/5J. günstiger als Planview/Planisware"),
+         "~ 1,5–2,5 M€/5J. günstiger als Planisware"),
     ("5", "KI-Roadmap — Now Assist skaliert über alle Bereiche, nicht nur PM",
          "Zukunftsinvestition schützt"),
     ("6", "App Engine für PEP — spezifische EWW-Anforderungen ohne 3rd-Party abbildbar",
@@ -372,9 +359,9 @@ build_table(
 )
 doc.add_paragraph()
 
-add_heading("Zwei ehrliche Vorbehalte (Vorstands-tauglich)", level=2)
+add_heading("Ehrlicher Vorbehalt (Vorstands-tauglich)", level=2)
 
-add_heading("1. Engineering-PM-Tiefe", level=3, color=NAVY)
+add_heading("Engineering-PM-Tiefe", level=3, color=NAVY)
 add_para(
     "Für die absolute Spitzentiefe im Stage-Gate-PEP (EWW) ist Planisware technisch weiter. "
     "Wenn STIHL in EWW industrialisierte Produktentwicklung mit > 100 parallelen R&D-Projekten "
@@ -390,12 +377,6 @@ add_para(
     color=RED_HL, italic=True
 )
 
-add_heading("2. Sehr komplexe Portfolio-Simulation", level=3, color=NAVY)
-add_para(
-    'Für „Was-wäre-wenn-Analysen" über 500+ Projekte × Ressourcen × Finanzen simultan hat '
-    'Planview noch einen kleinen Vorsprung. Für die typische STIHL-Portfolio-Größe irrelevant.'
-)
-
 doc.add_page_break()
 
 # ============================================================
@@ -403,7 +384,7 @@ doc.add_page_break()
 # ============================================================
 add_heading("Migrations-Empfehlung von altem PM-Tool", level=1)
 add_para(
-    'Statt „Big Bang" auf Planview/Planisware — schrittweise Erweiterung ServiceNow SPM Pro:',
+    'Statt „Big Bang" auf Planisware — schrittweise Erweiterung ServiceNow SPM Pro:',
     space_after=8
 )
 
@@ -436,17 +417,17 @@ add_callout(
 add_heading("Fazit", level=1)
 add_para(
     "Für Unternehmen mit bestehender ServiceNow-Basis wie STIHL überwiegen die Vorteile "
-    "einer SNOW SPM Pro-Migration klar die Funktionsdefizite gegenüber spezialisierten "
-    "PM-Tools. Die entscheidenden Argumente sind nicht in der PM-Funktionstiefe zu finden, "
-    "sondern in Plattform-Integration, Betriebskosten, Zeit-bis-Nutzen und der Konsistenz "
-    "der Anwenderführung.",
+    "einer SNOW SPM Pro-Migration klar die Funktionsdefizite gegenüber dem spezialisierten "
+    "Engineering-PM-Tool Planisware. Die entscheidenden Argumente sind nicht in der "
+    "PM-Funktionstiefe zu finden, sondern in Plattform-Integration, Betriebskosten, "
+    "Zeit-bis-Nutzen und der Konsistenz der Anwenderführung.",
     space_after=8
 )
 add_para(
-    "Planisware bleibt technisch überlegen in tiefsten R&D-Stage-Gate-Prozessen und "
+    "Planisware bleibt technisch überlegen in den tiefsten R&D-Stage-Gate-Prozessen und "
     "sollte als Hedge-Option in der Detail-Auftragsklärung (Vorgang 3 im Vorstandsprotokoll) "
-    "bewertet werden. Planview ist technisch stärker in reiner Portfolio-Optimierung, "
-    "aber ohne SNOW-Vorteil zu teuer für den STIHL-Kontext.",
+    "bewertet werden — jedoch bewusst als Ergänzung für den engen EWW-Bereich, nicht als "
+    "Konzern-Ziel-Plattform.",
     space_after=12
 )
 
