@@ -1,6 +1,6 @@
 """Build Word-Bericht: ServiceNow SPM Pro vs. Planisware."""
 from docx import Document
-from docx.shared import Pt, Cm, RGBColor, Inches
+from docx.shared import Pt, Cm, RGBColor
 from docx.enum.text import WD_ALIGN_PARAGRAPH
 from docx.enum.table import WD_ALIGN_VERTICAL, WD_TABLE_ALIGNMENT
 from docx.oxml.ns import qn
@@ -24,21 +24,18 @@ GREY_BG_HEX  = "E9EDF1"
 
 doc = Document()
 
-# ----- Page margins -----
 for section in doc.sections:
     section.top_margin = Cm(1.8)
     section.bottom_margin = Cm(1.8)
     section.left_margin = Cm(2.0)
     section.right_margin = Cm(2.0)
 
-# ----- Default style -----
 styles = doc.styles
 normal = styles["Normal"]
 normal.font.name = "Calibri"
 normal.font.size = Pt(11)
 normal.font.color.rgb = DARK
 
-# ----- Helpers -----
 def add_heading(text, level=1, color=None):
     p = doc.add_paragraph()
     p.paragraph_format.space_before = Pt(18 if level == 1 else 14)
@@ -116,13 +113,11 @@ def build_table(headers, rows, col_widths_cm=None, header_fill=NAVY_HEX,
         for i, w in enumerate(col_widths_cm):
             for c in range(len(rows) + 1):
                 tbl.cell(c, i).width = Cm(w)
-    # Header
     for i, h in enumerate(headers):
         c = tbl.cell(0, i)
         cell_set_text(c, h, bold=True, color=RGBColor(0xFF, 0xFF, 0xFF),
                       size=10.5, align=WD_ALIGN_PARAGRAPH.CENTER, hex_fill=header_fill)
         set_cell_border(c)
-    # Data
     for r, row in enumerate(rows, start=1):
         for i, v in enumerate(row):
             c = tbl.cell(r, i)
@@ -180,16 +175,17 @@ r.font.size = Pt(13)
 r.font.color.rgb = GREY_TXT
 r.italic = True
 
-# Meta line
 p = doc.add_paragraph()
 p.paragraph_format.space_after = Pt(12)
-meta = p.add_run("Kontext: Gartner Magic Quadrant für Adaptive Project Management and Reporting (Juni 2026)  ·  "
-                 "Fokus: Projekt-Management-Fähigkeiten  ·  Empfehlung für Migration von altem PM-Tool")
+meta = p.add_run(
+    "Referenz: Gartner Magic Quadrant for Adaptive Project Management and Reporting (APMR), "
+    "3. August 2026, ID G00842775  ·  "
+    "Fokus: Projekt-Management-Fähigkeiten im STIHL-Kontext"
+)
 meta.font.size = Pt(10)
 meta.font.color.rgb = GREY_TXT
 meta.italic = True
 
-# Horizontal rule
 p = doc.add_paragraph()
 pPr = p._p.get_or_add_pPr()
 pBdr = OxmlElement("w:pBdr")
@@ -207,27 +203,62 @@ pPr.append(pBdr)
 add_heading("Executive Summary", level=1)
 
 add_para(
-    'Planisware ist der Gartner-Leader mit der höchsten „Completeness of Vision" und die '
-    "technische Referenz für tiefe Engineering-/R&D-Projekte (Stage-Gate, PEP). "
-    "ServiceNow SPM Pro liegt im reinen Projekt-Management-Kern etwas dahinter, gewinnt aber "
-    "durch Plattform-Integration, KI (Now Assist) und App-Engine-Extensibility deutlich an "
-    "Boden — und ist ein Leader im SPM-Quadranten (2024/2025).",
+    "Planisware wird im aktuellen Gartner APMR Magic Quadrant (3. August 2026) als Leader "
+    "geführt — mit Planisware Orchestra als Kernprodukt und dem AI-Agent Oscar für Portfolio- "
+    'und Projektmanagement-Aufgaben. Gartner attestiert Planisware ein starkes „Market '
+    'Understanding" und eine belastbare Post-IPO-Stabilität.',
+    space_after=8
+)
+add_para(
+    "ServiceNow SPM Pro wird im APMR Magic Quadrant nicht bewertet — nicht wegen fehlender "
+    "Qualität, sondern per Gartner-Ausschlussregel: Plattform-Vendors, die APMR als Modul "
+    "ihrer Basis-Plattform anbieten, sind vom APMR-MQ ausgeschlossen. Für STIHL ist genau "
+    "dieser Plattform-Charakter der entscheidende Vorteil.",
     space_after=8
 )
 add_para(
     "Für ein Unternehmen mit bestehender ServiceNow-Basis und aktivem SPM Demand-Management "
-    "ist die klare Empfehlung: ServiceNow SPM Pro als strategische Ziel-Plattform, ergänzt "
-    "durch App Engine für spezifische Prozesse (z.B. Stage-Gate-PEP). Planisware bleibt als "
-    "Hedge-Option für den tiefsten R&D-Engineering-Bereich denkbar, ist aber wirtschaftlich "
-    "meist unterlegen.",
+    "ist die Empfehlung: ServiceNow SPM Pro als strategische Ziel-Plattform, ergänzt durch "
+    "App Engine für spezifische Prozesse (z.B. Stage-Gate-PEP im Bereich Entwicklung "
+    "Waldwirtschaft, EWW). Planisware bleibt als Hedge-Option für den engen R&D-Bereich "
+    "denkbar, ist aber wirtschaftlich meist unterlegen.",
     space_after=12
 )
 
 add_callout(
     "ServiceNow SPM Pro empfohlen — Datenkontinuität, Betriebskontinuität und Time-to-Value "
-    "überwiegen deutlich die Funktionsvorteile des spezialisierten Engineering-PM-Tools.",
+    "überwiegen deutlich die Funktionsvorteile des spezialisierten Best-of-Breed-Tools.",
     color_hex="DDF1DE",
     title="🎯 Kernempfehlung"
+)
+
+# ============================================================
+# METHODISCHER HINWEIS ZUM GARTNER-MQ
+# ============================================================
+add_heading("Einordnung: Warum ServiceNow im APMR MQ fehlt", level=1)
+
+add_para(
+    "Der Gartner APMR Magic Quadrant bewertet 11 Vendors: Asana, monday.com, Planforge, "
+    "Planisware, Planview, Prism PPM, ProSymmetry, Smartsheet, Triskell, Uppwise und Wrike. "
+    "ServiceNow ist bewusst nicht enthalten.",
+    space_after=8
+)
+
+add_para("Wörtliches Exclusion Criterion des Gartner-Berichts (Seite 17):", space_after=4)
+add_callout(
+    '„ERP, ITSM, SFA and other similar platform vendors that offer APMR extensions or '
+    'modules from their base platforms are not included."'
+    "\n\nÜbersetzt: ServiceNow ist als ITSM-Plattform mit APMR-Modul (SPM Pro) per Definition "
+    "kein reiner APMR-Player und wird deshalb im MQ nicht gewertet.",
+    color_hex="EEF1F4",
+    title="📖 Zitat Gartner APMR MQ"
+)
+
+add_para(
+    "Für den STIHL-Kontext ist das kein Nachteil — im Gegenteil: wir suchen genau den "
+    "Plattform-Effekt (Integration mit ITSM, HR-SD, GRC, App Engine). "
+    "Reine APMR-Best-of-Breed-Tools wie Planisware bieten diese Integration definitionsgemäß nicht.",
+    italic=True, color=GREY_TXT, space_after=12
 )
 
 # ============================================================
@@ -236,23 +267,23 @@ add_callout(
 add_heading("Steckbriefe der beiden Player", level=1)
 
 # Planisware
-add_heading('🎯 Planisware — Leader mit höchster „Completeness of Vision"', level=2)
+add_heading("🎯 Planisware — Leader im Gartner APMR MQ 2026", level=2)
 add_bullets([
-    "Referenz-Tool für Engineering-/R&D-Projekte (Stage-Gate, PEP)",
-    "Kernstärken: Produktentwicklung, komplexe Ressourcen×Finanz-Verzahnung, Portfolio-Simulationen",
-    "Zielgruppe: R&D-getriebene Unternehmen (Automotive, Pharma, Industrie — strukturell nah an STIHL)",
-    "Preis-Level: sehr hoch, personell-hungrig — dedizierte Experten nötig (18–24 Monate Implementierung)",
-    "Betriebsmodell: Insellösung — kein nativer Anschluss an ITSM/HR/CSM/GRC",
+    "Kernprodukt: Planisware Orchestra (SaaS, mehrsprachig)",
+    "AI-Agent Oscar: Demand Management, Szenario-Planung, Natural Language Queries, automatisierte Statusberichte",
+    "Gartner-Stärken laut MQ 2026: Market Understanding (Reifegrad-Skalierung von Projekt- zu Portfolio-Ebene), Marketing Strategy (out-of-the-box Dashboards), Overall Viability (Post-IPO-Stabilität, neue Präsenz in den Amerikas)",
+    "Gartner-Cautions laut MQ 2026: (1) Steile Lernkurve durch breites Feature-Set, (2) Industry-Starter-Packages decken Anforderungen nicht immer ab — Zusatzkonfiguration nötig, (3) AI-Fokus deckt evtl. nicht alle funktionalen APMR-Anforderungen",
+    "Betriebsmodell: Insellösung ohne nativen Anschluss an ITSM/HR/CSM/GRC",
 ])
 
 # ServiceNow
-add_heading("🔷 ServiceNow SPM Pro — Leader im SPM Magic Quadrant (2024/2025)", level=2)
+add_heading("🔷 ServiceNow SPM Pro — Plattform-Modul, nicht im APMR MQ bewertet", level=2)
 add_bullets([
     "Teil der Now Platform, native Integration mit ITSM, ITOM, HR, CSM, GRC",
     "Kernstärken: Plattform-Integration, Demand-to-Delivery, App Engine, Now Assist (KI)",
     "Zielgruppe: Enterprises mit vorhandener SNOW-Basis, Fokus auf End-to-End-Digitalisierung",
     "Preis-Level: mittel bis hoch, aber deutlicher Skaleneffekt bei bestehendem SNOW-Vertrag",
-    "Betriebsmodell: durchgehende Plattform statt Tool-Silo",
+    "Wichtiger Kontext: Gartner-APMR-MQ schließt Plattform-Vendors wie SNOW definitorisch aus — dies ist kein Qualitätsurteil, sondern eine Marktabgrenzung",
 ])
 
 doc.add_page_break()
@@ -263,7 +294,9 @@ doc.add_page_break()
 add_heading("Head-to-Head: Projekt-Management-Fähigkeiten", level=1)
 add_para(
     "Die folgende Matrix vergleicht beide Player anhand von 16 Kriterien im Kontext "
-    "Projekt-Management (5 Sterne = Best-in-Class).",
+    "Projekt-Management (5 Sterne = Best-in-Class). Die Planisware-Bewertungen "
+    "orientieren sich am Gartner APMR MQ 2026, die SNOW-Bewertungen an "
+    "STIHL-Erfahrungswerten und Marktbeobachtung.",
     italic=True, color=GREY_TXT, space_after=10
 )
 
@@ -271,13 +304,13 @@ compare_rows = [
     ("Klassische Projektplanung (Gantt, WBS, Meilensteine)",  "★★★★★", "★★★★"),
     ("Multi-Projekt-Abhängigkeiten",                          "★★★★★", "★★★★"),
     ("Ressourcen-Management (Skills, Capacity, Optimierung)", "★★★★★", "★★★★"),
-    ("Was-wäre-wenn / Szenario-Analysen",                     "★★★★★", "★★★★ (Pro)"),
+    ("Was-wäre-wenn / Szenario-Analysen (Oscar-AI)",          "★★★★★", "★★★★ (Pro)"),
     ("Finanz-Management (Kosten, Forecasts, Investment)",     "★★★★★", "★★★★"),
     ("Programm-Management",                                   "★★★★★", "★★★★"),
     ("Stage-Gate / PEP-Prozesse",                             "★★★★★", "★★★ / ★★★★ mit App Engine"),
     ("Agile / Hybrid-PM (SAFe, Scrum)",                       "★★★★",  "★★★★ (EAP Pro)"),
     ("Reporting & Live-Dashboards",                           "★★★★",  "★★★★★"),
-    ("KI / GenAI (Vorhersagen, Auto-Reports)",                "★★★",   "★★★★★ (Now Assist)"),
+    ("KI / GenAI (Vorhersagen, Auto-Reports)",                "★★★★ (Oscar)", "★★★★★ (Now Assist)"),
     ("Zeiterfassung + Approval",                              "★★★★★", "★★★★"),
     ("Integration mit ITSM / bestehende SNOW-Landschaft",     "★★",    "★★★★★ (nativ)"),
     ("Extensibility / Low-Code Custom",                       "★★★",   "★★★★★ (App Engine)"),
@@ -299,23 +332,23 @@ doc.add_paragraph()
 # ============================================================
 add_heading("Fach-Bewertung nach Projekt-Management-Aspekten", level=1)
 
-add_heading("Wo Planisware technisch überlegen ist", level=3, color=RED_HL)
+add_heading("Wo Planisware technisch überlegen ist (laut Gartner APMR MQ 2026)", level=3, color=RED_HL)
 add_bullets([
-    "Tiefe Stage-Gate-Prozesse für Produktentwicklung (STIHL EWW/PEP wäre hier grundsätzlich sehr gut aufgehoben)",
-    "Sehr komplexe Ressourcen×Finanz×Zeit-Verschränkungen über hunderte parallele NPD-Projekte",
-    "Referenz-Domäne: Automotive, Aerospace, Pharma R&D",
-    "Portfolio-Simulationen und Was-wäre-wenn-Analysen auf sehr großem Datenbestand",
-    "ABER: Insel-Betrieb, kein Anschluss an ITSM/HR/CSM, hoher Betriebs- und Trainingsaufwand",
+    "Reife Portfolio-Ebene mit strukturierter Governance und adaptiven Controls",
+    "AI-Agent Oscar mit Fokus auf Demand, Szenario-Planung, Natural Language Queries",
+    "Out-of-the-box Dashboards und einheitliche Datenschicht als Fundament für AI",
+    "Post-IPO-Stabilität und globale Präsenz (jüngst neue Amerikas-Präsenz)",
+    "ABER laut Gartner: Steile Lernkurve, Industry-Packages oft nicht ausreichend, Insel-Betrieb ohne Anschluss an ITSM/HR/CSM",
 ])
 
 add_heading("Wo ServiceNow SPM Pro überlegen ist", level=3, color=GREEN)
 add_bullets([
-    "Plattform-Integration — Demand aus ITSM fließt direkt in Projekte",
-    "Time-to-Value — Team, Betrieb und UI bereits bekannt",
-    "KI durchgängig — Now Assist für Reporting, Risikofrüherkennung, Story Generation",
+    "Plattform-Integration — Demand aus ITSM fließt direkt in Projekte (nativ, kein Konnektor)",
+    "Time-to-Value — Team, Betrieb und UI im Haus seit 2014 bekannt",
+    "KI durchgängig — Now Assist für Reporting, Risikofrüherkennung, Story Generation über alle SNOW-Bereiche",
     "Erweiterbarkeit über App Engine — spezifische PEP-Steps ohne 3rd-Party-Tool nachbaubar",
     "Ganzheitliche Sicht über IT-Projekte, Business-Projekte, HR-Projekte, Compliance",
-    "ABER: in tiefstem Engineering-PM etwas weniger reif als das spezialisierte Tool",
+    "ABER: in tiefstem Engineering-PM strukturell weniger reif als das spezialisierte Best-of-Breed-Tool",
 ])
 
 doc.add_page_break()
@@ -325,7 +358,8 @@ doc.add_page_break()
 # ============================================================
 add_heading("Empfehlung für den STIHL-Kontext", level=1)
 add_para(
-    "Setup: ServiceNow seit 2014 im Einsatz  ·  SPM Demand bereits aktiv  ·  Migration von altem PM-Tool (PIT/MSPO)",
+    "Setup: ServiceNow seit 2014 im Einsatz  ·  SPM Demand bereits aktiv  ·  "
+    "Migration von altem PM-Tool (PIT/MSPO)",
     italic=True, color=GREY_TXT, space_after=10
 )
 
@@ -361,15 +395,15 @@ doc.add_paragraph()
 
 add_heading("Ehrlicher Vorbehalt (Vorstands-tauglich)", level=2)
 
-add_heading("Engineering-PM-Tiefe", level=3, color=NAVY)
+add_heading("Engineering-PM-Tiefe (EWW / R&D)", level=3, color=NAVY)
 add_para(
-    "Für die absolute Spitzentiefe im Stage-Gate-PEP (EWW) ist Planisware technisch weiter. "
-    "Wenn STIHL in EWW industrialisierte Produktentwicklung mit > 100 parallelen R&D-Projekten "
-    "hat und dort maximale Reife will → hybrider Ansatz denkbar:"
+    "Für die absolute Spitzentiefe im Stage-Gate-PEP (Bereich Entwicklung Waldwirtschaft, EWW) "
+    "ist Planisware technisch weiter. Wenn STIHL in EWW industrialisierte Produktentwicklung "
+    "mit > 100 parallelen R&D-Projekten hat und dort maximale Reife will → hybrider Ansatz denkbar:"
 )
 add_bullets([
     "ServiceNow SPM Pro: Konzern-Portfolio, Demand, Strategy, IT/Operations-PM, Reporting",
-    "Planisware (nur EWW): Deep-R&D-PEP-Steuerung mit Übergabe an SNOW für Portfolio-Sicht",
+    "Planisware Orchestra (nur EWW): Deep-R&D-PEP-Steuerung mit Übergabe an SNOW für Portfolio-Sicht",
 ])
 add_para(
     "Aber: dieser Split verdoppelt Betriebskosten. Nur sinnvoll, wenn App-Engine-Erweiterung "
@@ -405,7 +439,7 @@ doc.add_paragraph()
 
 add_callout(
     "Nach Phase 1, wenn sich zeigt, dass App Engine PEP nicht in vernünftiger Tiefe abbildbar "
-    "ist — dann Planisware als spezialisiertes Engineering-PM in Betracht ziehen. "
+    "ist — dann Planisware Orchestra als spezialisiertes Engineering-PM in Betracht ziehen. "
     "Bis dahin: Standard-First mit klarer Migration-Klausel.",
     color_hex="FFF6D5",
     title='⚠ Break-Punkt für „Doch Planisware"-Diskussion'
@@ -421,6 +455,13 @@ add_para(
     "Engineering-PM-Tool Planisware. Die entscheidenden Argumente sind nicht in der "
     "PM-Funktionstiefe zu finden, sondern in Plattform-Integration, Betriebskosten, "
     "Zeit-bis-Nutzen und der Konsistenz der Anwenderführung.",
+    space_after=8
+)
+add_para(
+    "Der Gartner APMR MQ 2026 bestätigt Planisware als Leader im reinen APMR-Markt. "
+    "ServiceNow ist in diesem MQ per Ausschlussregel nicht enthalten, weil es als "
+    "Plattform-Vendor mit APMR-Modul kategorisiert wird — genau die Eigenschaft, die im "
+    "STIHL-Kontext den ausschlaggebenden Mehrwert liefert.",
     space_after=8
 )
 add_para(
@@ -445,17 +486,18 @@ pPr.append(pBdr)
 
 p = doc.add_paragraph()
 r = p.add_run(
-    "Quellen: Gartner Magic Quadrant für Adaptive Project Management and Reporting (Juni 2026); "
-    "Gartner Magic Quadrant Strategic Portfolio Management (2024/2025); "
-    "Analyse basiert auf öffentlich verfügbaren Vendor-Informationen und Marktbeobachtung. "
-    "Bindende Bewertung nur nach Detail-Prüfung im Rahmen des RFP-Prozesses (Vorgang 6, Q4/2026)."
+    "Quellen: Gartner Magic Quadrant for Adaptive Project Management and Reporting (APMR), "
+    "3. August 2026, ID G00842775 (Clegg, Jackson, Ali, Stang, Choi); "
+    "Vendor-Aussagen zu ServiceNow SPM Pro basierend auf öffentlich verfügbaren "
+    "Produktinformationen und STIHL-interner Marktbeobachtung. "
+    "Bindende Bewertung nur nach Detail-Prüfung im Rahmen des RFP-Prozesses "
+    "(Vorgang 6, Q4/2026)."
 )
 r.font.name = "Calibri"
 r.font.size = Pt(8.5)
 r.font.color.rgb = GREY_TXT
 r.italic = True
 
-# Autoren
 p = doc.add_paragraph()
 r = p.add_run("Autoren: Alex Passaro · Torsten Zahn  ·  Stand: 15.10.2026")
 r.font.name = "Calibri"
