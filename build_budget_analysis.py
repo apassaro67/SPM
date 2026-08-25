@@ -88,6 +88,16 @@ rows27 = [d for d in raw_rows if d['fy27']]
 m26 = {d['key']: d for d in rows26}
 m27 = {d['key']: d for d in rows27}
 
+# Der sFinx-Export fuehrt den FY27-Cost-Center von Modern Workplace & Experience
+# noch unter dem alten Code DE2060203. Laut Fachbereich lautet der FY27-Code
+# DE206210; die FY27-Zeilen werden deshalb auf diesen Code umgeschluesselt.
+CC_UMSCHLUESSELUNG_FY27 = {'DE2060203': 'DE206210'}
+for d in rows27:
+    neu = CC_UMSCHLUESSELUNG_FY27.get(d['code'])
+    if neu:
+        d['ccl'] = d['ccl'].replace(d['code'], neu, 1)
+        d['code'] = neu
+
 # Cost-Center-Bezeichnungen je Jahr
 CC_NAME = {}
 for d in rows26:
@@ -95,11 +105,28 @@ for d in rows26:
 for d in rows27:
     CC_NAME.setdefault(d['code'], {})['FY27'] = d['ccl']
 
-# Annahme: der FY26 aufgeloeste Cost Center DE2060202 (ITSM+ServiceNow) geht in der
-# vergleichbaren Sicht in DE2060204 (Support & Operations) auf. Positionen, die
-# über die Namensgleichheit einem anderen FY27-Cost-Center zugeordnet werden
-# koennen (z. B. SMO Operations -> DE2060502), folgen ihrem FY27-Cost-Center.
-CC_NACHFOLGER = {'DE2060202': 'DE2060204'}
+# Organisatorische Ueberfuehrung FY26 -> FY27 (Vorgabe des Fachbereichs):
+#   DE2060202 (ITSM+ServiceNow)      wurde in DE2060204 integriert
+#   DE2060203 (Digital Collaboration) wurde nach DE206210 ueberfuehrt
+#   DE2060204 (Serv. Desk+Support)    wird unveraendert fortgefuehrt
+CC_NACHFOLGER = {'DE2060202': 'DE2060204',
+                 'DE2060203': 'DE206210',
+                 'DE2060204': 'DE2060204'}
+CC_UEBERFUEHRUNG_ART = {'DE2060202': 'in DE2060204 integriert',
+                        'DE2060203': 'nach DE206210 überführt',
+                        'DE2060204': 'unverändert fortgeführt'}
+
+# Feste Lage der Ueberfuehrungstabelle auf dem Blatt 'Cost Center'. Die Spalte
+# 'Bemerkung' im Blatt 'Positionen' prueft ueber diese Tabelle, ob ein
+# Cost-Center-Wechsel der Vorgabe entspricht.
+CC_VORGAENGER = {}
+for _alt, _neu in CC_NACHFOLGER.items():
+    CC_VORGAENGER.setdefault(_neu, []).append(_alt)
+
+MAP_ROW_FIRST = 7
+MAP_ROW_LAST = MAP_ROW_FIRST + len(CC_NACHFOLGER) - 1
+MAP_26 = f"'Cost Center'!$A${MAP_ROW_FIRST}:$A${MAP_ROW_LAST}"
+MAP_27 = f"'Cost Center'!$C${MAP_ROW_FIRST}:$C${MAP_ROW_LAST}"
 
 # Auf Anforderung vollstaendig aus der Auswertung ausgeschlossene Cost Center.
 # Betroffene Positionen entfallen mit BEIDEN Jahreswerten – auch dann, wenn der
@@ -110,7 +137,7 @@ CC_AUSGESCHLOSSEN = {'DE2060502'}
 # 2) Themen-Zuordnung
 # --------------------------------------------------------------------------
 THEMEN_REGELN = [
-    ('ServiceNow & ITSM-Plattform', [r'servicenow', r'\bitsm\b', r'smo operations', r'sepm', r'\bspm\b', r'\bitom\b']),
+    ('ITSM & ServiceNow', [r'servicenow', r'\bitsm\b', r'smo operations', r'sepm', r'\bspm\b', r'\bitom\b']),
     ('KI & Copilot', [r'copilot']),
     ('Microsoft M365 Lizenzen', [r'microsoft m365 ea', r'm365 governance', r'sharepoint storage',
                                  r'project online', r'powerbi', r'entra und intune', r'github']),
@@ -168,7 +195,10 @@ ausgeschlossen = [d for d in positions
 positions = [d for d in positions if d not in ausgeschlossen]
 positions.sort(key=lambda d: (d['cc_view'], d['thema'], d['item'].lower()))
 
-CC_CODES = sorted(set(CC_NAME) - CC_AUSGESCHLOSSEN)
+# Ist-Sicht: jeder Code, der in einem der beiden Jahre gebucht ist.
+# Bereinigte Sicht: nur die FY27-Zielcodes, auf die Positionen zusammenlaufen.
+CC_CODES_IST = sorted({c for p in positions for c in (p['cc26'], p['cc27']) if c})
+CC_CODES = sorted({p['cc_view'] for p in positions})
 THEMEN = sorted({p['thema'] for p in positions})
 KOSTENARTEN = sorted({p['accname'] for p in positions})
 
@@ -308,9 +338,13 @@ for i, p in enumerate(positions):
     wsP.cell(row=r, column=14, value=f'=IF(K{r}=0,"",M{r}/K{r})')
     wsP.cell(row=r, column=15, value=(f'=IF(K{r}=0,"neu",IF(L{r}=0,"entfallen",'
                                       f'IF(M{r}>0,"erhöht",IF(M{r}<0,"reduziert","unverändert"))))'))
-    wsP.cell(row=r, column=16, value=(f'=IF(AND(C{r}<>"",D{r}<>"",C{r}<>D{r}),'
-                                      f'"Verlagerung "&C{r}&" -> "&D{r},'
-                                      f'IF(C{r}="","erstmals in FY27",IF(D{r}="","nur in FY26","")))'))
+    wsP.cell(row=r, column=16, value=(
+        f'=IF(C{r}="","erstmals in FY27",'
+        f'IF(D{r}="","nur in FY26",'
+        f'IF(C{r}=D{r},"",'
+        f'IF(D{r}=IFERROR(INDEX({MAP_27},MATCH(C{r},{MAP_26},0)),""),'
+        f'"Reorg-Überführung "&C{r}&" -> "&D{r},'
+        f'"abweichende Verlagerung "&C{r}&" -> "&D{r}))))'))
     for c in (11, 12, 13):
         wsP.cell(row=r, column=c).number_format = EUR
     wsP.cell(row=r, column=14).number_format = PCT
@@ -458,7 +492,7 @@ for p in positions:
     agg_th[p['thema']][0] += p['fy26']
     agg_th[p['thema']][1] += p['fy27']
 agg_cc_view = OrderedDict((c, [0.0, 0.0]) for c in CC_CODES)
-agg_cc_ist = OrderedDict((c, [0.0, 0.0]) for c in CC_CODES)
+agg_cc_ist = OrderedDict((c, [0.0, 0.0]) for c in CC_CODES_IST)
 for p in positions:
     agg_cc_view[p['cc_view']][0] += p['fy26']
     agg_cc_view[p['cc_view']][1] += p['fy27']
@@ -484,15 +518,36 @@ note(wsC, 3, 1, HINWEIS_AUSSCHLUSS)
 
 HDR_CC = ['Cost Center Code', 'Bezeichnung FY26', 'Bezeichnung FY27', 'Budget FY26', 'Budget FY27',
           'Delta (EUR)', 'Delta %', 'Anteil FY27']
-WID_CC = [17, 32, 34, 15, 15, 15, 11, 11]
+WID_CC = [18, 48, 40, 15, 15, 15, 11, 11]
 
-# --- A) Ist-Sicht -----------------------------------------------------------
-block_title(wsC, 4, 'A) Ist-Sicht – Budget wie im Export gebucht')
-note(wsC, 5, 1, 'FY26-Werte am FY26-Cost-Center, FY27-Werte am FY27-Cost-Center. '
-                'Die Reorganisation (DE2060202 entfällt) schlägt hier voll durch.')
-hA = 6
+# --- 0) Organisatorische Überführung FY26 → FY27 -----------------------------
+block_title(wsC, 4, 'A) Organisatorische Überführung FY26 → FY27')
+note(wsC, 5, 1, 'Vorgabe des Fachbereichs. Diese Zuordnung steuert die bereinigte Sicht (Block C) '
+                'und die Spalte "Bemerkung" auf dem Blatt "Positionen".')
+hM = 6
+header(wsC, hM, 1, ['Cost Center FY26', 'Bezeichnung FY26', 'Cost Center FY27', 'Bezeichnung FY27',
+                    'Art der Überführung'], [18, 48, 18, 40, 30])
+M_F = hM + 1
+for i, code in enumerate(sorted(CC_NACHFOLGER)):
+    r = M_F + i
+    ziel = CC_NACHFOLGER[code]
+    wsC.cell(row=r, column=1, value=code).alignment = Alignment(horizontal='center')
+    wsC.cell(row=r, column=2, value=CC_NAME.get(code, {}).get('FY26', '–'))
+    wsC.cell(row=r, column=3, value=ziel).alignment = Alignment(horizontal='center')
+    wsC.cell(row=r, column=4, value=CC_NAME.get(ziel, {}).get('FY27', '–'))
+    wsC.cell(row=r, column=5, value=CC_UEBERFUEHRUNG_ART.get(code, ''))
+M_L = M_F + len(CC_NACHFOLGER) - 1
+style_table(wsC, M_F, M_L, 1, 5)
+assert (M_F, M_L) == (MAP_ROW_FIRST, MAP_ROW_LAST), 'Lage der Überführungstabelle verschoben'
+
+# --- B) Ist-Sicht -----------------------------------------------------------
+bA = M_L + 2
+block_title(wsC, bA, 'B) Ist-Sicht – Budget wie im Export gebucht')
+note(wsC, bA + 1, 1, 'FY26-Werte am FY26-Cost-Center, FY27-Werte am FY27-Cost-Center. Die Überführung aus Block A '
+                     'schlägt hier voll durch: abgebende Cost Center weisen FY27 keinen Wert mehr aus.')
+hA = bA + 2
 header(wsC, hA, 1, HDR_CC, WID_CC)
-for i, code in enumerate(CC_CODES):
+for i, code in enumerate(CC_CODES_IST):
     r = hA + 1 + i
     wsC.cell(row=r, column=1, value=code).alignment = Alignment(horizontal='center')
     wsC.cell(row=r, column=2, value=CC_NAME.get(code, {}).get('FY26', '– (in FY26 nicht vorhanden)'))
@@ -501,8 +556,8 @@ for i, code in enumerate(CC_CODES):
     wsC.cell(row=r, column=5, value=f'=SUMIFS({R_F27},{R_CC27},$A{r})').number_format = EUR
     wsC.cell(row=r, column=6, value=f'=E{r}-D{r}').number_format = EUR
     wsC.cell(row=r, column=7, value=f'=IF(D{r}=0,"",F{r}/D{r})').number_format = PCT
-    wsC.cell(row=r, column=8, value=f'=IF($E${hA + 1 + len(CC_CODES)}=0,"",E{r}/$E${hA + 1 + len(CC_CODES)})').number_format = PCT
-A_F, A_L = hA + 1, hA + len(CC_CODES)
+    wsC.cell(row=r, column=8, value=f'=IF($E${hA + 1 + len(CC_CODES_IST)}=0,"",E{r}/$E${hA + 1 + len(CC_CODES_IST)})').number_format = PCT
+A_F, A_L = hA + 1, hA + len(CC_CODES_IST)
 A_T = A_L + 1
 wsC.cell(row=A_T, column=1, value='Gesamt')
 for c in (4, 5, 6):
@@ -519,15 +574,18 @@ for c in range(1, 9):
 
 # --- B) organisatorisch bereinigte Sicht ------------------------------------
 bB = A_T + 3
-block_title(wsC, bB, 'B) Vergleichbare Sicht – organisatorisch bereinigt')
-note(wsC, bB + 1, 1, 'FY26- und FY27-Werte einer Position werden gemeinsam dem FY27-Cost-Center zugeordnet '
+block_title(wsC, bB, 'C) Vergleichbare Sicht – organisatorisch bereinigt')
+note(wsC, bB + 1, 1, 'FY26- und FY27-Werte einer Position werden gemeinsam dem FY27-Cost-Center aus Block A zugeordnet '
                      '(Spalte "Cost Center (Sicht)"). So wird die reine Budgetentwicklung ohne Reorganisationseffekt sichtbar.')
 hB = bB + 2
-header(wsC, hB, 1, HDR_CC, WID_CC)
+header(wsC, hB, 1, ['Cost Center Code (FY27)', 'Vorgänger FY26', 'Bezeichnung FY27', 'Budget FY26',
+                    'Budget FY27', 'Delta (EUR)', 'Delta %', 'Anteil FY27'], WID_CC)
 for i, code in enumerate(CC_CODES):
     r = hB + 1 + i
+    vorg = ' + '.join(f"{v} ({CC_NAME.get(v, {}).get('FY26', '').split(' - ')[-1]})"
+                      for v in sorted(CC_VORGAENGER.get(code, [])))
     wsC.cell(row=r, column=1, value=code).alignment = Alignment(horizontal='center')
-    wsC.cell(row=r, column=2, value=CC_NAME.get(code, {}).get('FY26', '– (in FY26 nicht vorhanden)'))
+    wsC.cell(row=r, column=2, value=vorg or '– (kein FY26-Vorgänger)')
     wsC.cell(row=r, column=3, value=CC_NAME.get(code, {}).get('FY27', '– (in FY27 entfallen)'))
     wsC.cell(row=r, column=4, value=f'=SUMIFS({R_F26},{R_CCV},$A{r})').number_format = EUR
     wsC.cell(row=r, column=5, value=f'=SUMIFS({R_F27},{R_CCV},$A{r})').number_format = EUR
@@ -907,7 +965,8 @@ r += 2
 sec(r, '2) Blattaufbau')
 for k, v in [
     ('Dashboard', 'Interaktive Sicht mit zwei Dropdowns (Cost Center / Thema), Kennzahlen, vier Diagrammen und der Top-Liste der Veränderungen.'),
-    ('Cost Center', 'Entwicklung je Cost Center: A) Ist-Sicht wie gebucht, B) organisatorisch bereinigte Sicht – jeweils mit Diagramm.'),
+    ('Cost Center', 'A) organisatorische Überführung FY26 → FY27, B) Ist-Sicht wie gebucht, '
+                    'C) organisatorisch bereinigte Sicht – B und C jeweils mit Diagramm.'),
     ('Themen', 'Entwicklung je Thema, Matrix Thema x Cost Center (FY27 und Veränderung) sowie vier Diagramme.'),
     ('Positionen', 'Detailtabelle aller Positionen, sortiert nach Cost-Center-Code, Thema und Bezeichnung. Mit Autofilter.'),
     ('Berechnung', 'Hilfsblatt: Auswahllisten und formelbasierte Diagrammquellen des Dashboards. Bitte nicht löschen.'),
@@ -929,21 +988,35 @@ kv(r, 'Bemerkung', 'Weist auf einen Cost-Center-Wechsel einer Position zwischen 
 r += 2
 sec(r, '4) Annahmen (bitte prüfen)')
 r += 1
-kv(r, 'Reorganisation', 'FY26 existieren DE2060202 (ITSM+ServiceNow), DE2060203 (Digital Collaboration) und DE2060204 (Service Desk & Support). '
-                        'FY27 existieren DE2060203 (Modern Workplace & Experience), DE2060204 (Support & Operations) und DE2060502 (IPS Management Office). '
-                        'DE2060202 entfällt, DE2060502 kommt neu hinzu – DE2060502 ist jedoch aus dieser Auswertung ausgeschlossen (siehe Abschnitt 5).')
+kv(r, 'Überführung (Vorgabe)', 'Vom Fachbereich vorgegeben und in Block A des Blatts "Cost Center" dokumentiert: '
+                              'DE2060202 (ITSM+ServiceNow) wurde in DE2060204 integriert · DE2060203 (Digital Collaboration) wurde '
+                              'nach DE206210 (Modern Workplace & Experience) überführt · DE2060204 wird unverändert fortgeführt.')
+r += 1
+kv(r, 'Umschlüsselung DE206210', 'Achtung: Der sFinx-Export führt den FY27-Cost-Center von Modern Workplace & Experience noch unter '
+                                 'dem alten Code DE2060203. Gemäß Vorgabe werden alle FY27-Zeilen dieses Cost Centers auf den Code '
+                                 'DE206210 umgeschlüsselt. Im Blatt "Rohdaten sfinx" steht daher weiterhin DE2060203.')
 r += 1
 kv(r, 'Bereinigte Sicht', 'Für die vergleichbare Sicht wird eine Position mit beiden Jahreswerten dem FY27-Cost-Center zugeordnet '
-                          '(z. B. ServiceNow Enterprise Contract: FY26 auf DE2060202, FY27 auf DE2060204 – beide Werte werden DE2060204 zugerechnet).')
+                          '(z. B. ServiceNow Enterprise Contract: FY26 auf DE2060202, FY27 auf DE2060204 – beide Werte werden DE2060204 zugerechnet). '
+                          'Es verbleiben damit die beiden fortgeführten Cost Center DE2060204 und DE206210.')
 r += 1
-kv(r, 'Auflösung DE2060202', 'FY26-Positionen des aufgelösten Cost Centers DE2060202 ohne FY27-Nachfolgeposition '
-                              '(ITSM CSI Fokus, ITSM Development, ServiceNow Modul Release Management (SAP)) werden in der bereinigten Sicht '
-                              'DE2060204 zugeordnet. Diese Annahme ist im Skript "build_budget_analysis.py" hinterlegt und änderbar.')
+kv(r, 'FY26-Positionen ohne Nachfolger', 'Positionen, die es nur in FY26 gibt, folgen der Überführung aus Block A: '
+                                         'ITSM CSI Fokus, ITSM Development und ServiceNow Modul Release Management (SAP) '
+                                         '(alle DE2060202) werden in der bereinigten Sicht DE2060204 zugeordnet, '
+                                         'Alarming - SMS und Lexmark RFID Support bleiben bei DE2060204.')
+r += 1
+kv(r, 'Prüfhinweis', 'Die Spalte "Bemerkung" im Blatt "Positionen" gleicht jeden Cost-Center-Wechsel gegen Block A ab. '
+                     '"Reorg-Überführung" = entspricht der Vorgabe; "abweichende Verlagerung" = weicht davon ab und ist zu prüfen. '
+                     'Aktuell tritt kein abweichender Fall auf.')
 r += 1
 kv(r, 'Themen', 'Die Themen sind eine fachliche Bündelung der Positionsbezeichnungen (Regelwerk im Skript). '
-                'Ein Treffer entscheidet in dieser Reihenfolge: ServiceNow/ITSM, KI & Copilot, Microsoft M365, Unified Communications, '
+                'Ein Treffer entscheidet in dieser Reihenfolge: ITSM & ServiceNow, KI & Copilot, Microsoft M365, Unified Communications, '
                 'E-Mail & Messaging, Collaboration-Tools, Digital Signage, Client & Endgeräte, Output Management, Service Desk, IT-Management. '
                 'Beispiel: "Microsoft M365 EA - Copilot Studio ..." zählt zu "KI & Copilot", nicht zu den M365-Lizenzen.')
+r += 1
+kv(r, 'ITSM & ServiceNow', 'ITSM- und ServiceNow-Positionen bilden gemäß Vorgabe ein gemeinsames Thema. Es umfasst alle Positionen '
+                           'mit "ServiceNow", "ITSM", "SPM", "SEPM", "ITOM" oder "SMO Operations" im Namen – unabhängig davon, ob sie '
+                           'als Lizenz, Plattformbetrieb oder Projektleistung gebucht sind.')
 
 r += 2
 sec(r, '5) Ausgeschlossener Cost Center')
