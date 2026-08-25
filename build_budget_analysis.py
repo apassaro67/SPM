@@ -37,6 +37,9 @@ C_GREY   = '595959'
 EUR  = '#,##0;-#,##0;"–"'
 PCT  = '0.0%;-0.0%;"–"'
 
+HINWEIS_AUSSCHLUSS = ('Hinweis: Cost Center DE2060502 (IPS Management Office NCE) ist auf Anforderung '
+                      'vollständig aus dieser Auswertung ausgeschlossen – mit beiden Jahreswerten.')
+
 thin = Side(style='thin', color='BFBFBF')
 BORDER = Border(left=thin, right=thin, top=thin, bottom=thin)
 
@@ -98,6 +101,11 @@ for d in rows27:
 # koennen (z. B. SMO Operations -> DE2060502), folgen ihrem FY27-Cost-Center.
 CC_NACHFOLGER = {'DE2060202': 'DE2060204'}
 
+# Auf Anforderung vollstaendig aus der Auswertung ausgeschlossene Cost Center.
+# Betroffene Positionen entfallen mit BEIDEN Jahreswerten – auch dann, wenn der
+# FY26-Wert urspruenglich auf einem anderen Cost Center gebucht war.
+CC_AUSGESCHLOSSEN = {'DE2060502'}
+
 # --------------------------------------------------------------------------
 # 2) Themen-Zuordnung
 # --------------------------------------------------------------------------
@@ -154,9 +162,13 @@ for key in sorted(set(m26) | set(m27)):
         r26=a['rcode'] if a else '', r27=b['rcode'] if b else '',
         fy26=a['fy26'] if a else 0.0, fy27=b['fy27'] if b else 0.0))
 
+ausgeschlossen = [d for d in positions
+                 if d['cc_view'] in CC_AUSGESCHLOSSEN
+                 or d['cc26'] in CC_AUSGESCHLOSSEN or d['cc27'] in CC_AUSGESCHLOSSEN]
+positions = [d for d in positions if d not in ausgeschlossen]
 positions.sort(key=lambda d: (d['cc_view'], d['thema'], d['item'].lower()))
 
-CC_CODES = sorted(set(list(CC_NAME.keys())))
+CC_CODES = sorted(set(CC_NAME) - CC_AUSGESCHLOSSEN)
 THEMEN = sorted({p['thema'] for p in positions})
 KOSTENARTEN = sorted({p['accname'] for p in positions})
 
@@ -270,6 +282,7 @@ wsP = wb.create_sheet('Positionen')
 base_font(wsP, rows=N + 12, cols=17)
 wsP['A1'] = 'Positionen FY26 / FY27 – sortiert nach Cost Center Code'
 wsP['A1'].font = Font(name=FONT, size=14, bold=True, color=C_DARK)
+note(wsP, 1, 6, HINWEIS_AUSSCHLUSS)
 
 COLS = [('Cost Center (Sicht)', 15), ('Cost Center Bezeichnung (FY27)', 34), ('CC FY26', 12), ('CC FY27', 12),
         ('Thema', 30), ('Position', 52), ('Kostenart (Konto)', 34), ('Konto-Nr.', 11),
@@ -467,6 +480,7 @@ wsC = wb.create_sheet('Cost Center')
 base_font(wsC, rows=80, cols=20)
 title(wsC, 'Budgetentwicklung je Cost Center: FY26 → FY27',
       'Quelle: sFinx-Export vom 25.08.2026 · Werte in EUR · alle Zellen sind Formeln auf Blatt "Positionen"')
+note(wsC, 3, 1, HINWEIS_AUSSCHLUSS)
 
 HDR_CC = ['Cost Center Code', 'Bezeichnung FY26', 'Bezeichnung FY27', 'Budget FY26', 'Budget FY27',
           'Delta (EUR)', 'Delta %', 'Anteil FY27']
@@ -475,7 +489,7 @@ WID_CC = [17, 32, 34, 15, 15, 15, 11, 11]
 # --- A) Ist-Sicht -----------------------------------------------------------
 block_title(wsC, 4, 'A) Ist-Sicht – Budget wie im Export gebucht')
 note(wsC, 5, 1, 'FY26-Werte am FY26-Cost-Center, FY27-Werte am FY27-Cost-Center. '
-                'Die Reorganisation (DE2060202 entfällt, DE2060502 neu) schlägt hier voll durch.')
+                'Die Reorganisation (DE2060202 entfällt) schlägt hier voll durch.')
 hA = 6
 header(wsC, hA, 1, HDR_CC, WID_CC)
 for i, code in enumerate(CC_CODES):
@@ -585,6 +599,7 @@ wsT = wb.create_sheet('Themen')
 base_font(wsT, rows=140, cols=22)
 title(wsT, 'Budgetentwicklung je Thema: FY26 → FY27',
       'Themen sind fachliche Bündel der Einzelpositionen (Zuordnungsregeln siehe Blatt "Legende")')
+note(wsT, 3, 1, HINWEIS_AUSSCHLUSS)
 
 block_title(wsT, 4, 'A) Entwicklung je Thema (alle Cost Center)')
 HDR_T = ['Thema', 'Budget FY26', 'Budget FY27', 'Delta (EUR)', 'Delta %', 'Anteil FY27',
@@ -730,6 +745,7 @@ wsD = wb.create_sheet('Dashboard', 0)
 base_font(wsD, rows=90, cols=22)
 title(wsD, 'Budget-Dashboard FY26 → FY27',
       'Interaktive Auswertung: die beiden Auswahlfelder unten steuern Kennzahlen, Tabellen und Diagramme.')
+note(wsD, 3, 1, HINWEIS_AUSSCHLUSS)
 for col, w in zip('ABCDEFGHIJKLMNOPQRSTUV',
                   [24, 15, 30, 13, 13, 13, 13, 13, 4, 13, 13, 13, 13, 13, 9, 9, 9, 9, 9, 9, 9, 9]):
     wsD.column_dimensions[col].width = w
@@ -851,6 +867,9 @@ for r, row in enumerate(ws_src.iter_rows(min_row=1, max_row=ws_src.max_row, max_
             cell.number_format = EUR
 for col, w in zip('ABCDEFGH', [20, 40, 60, 12, 14, 40, 15, 15]):
     wsR.column_dimensions[col].width = w
+note(wsR, ws_src.max_row + 2, 1,
+     'Unveränderter Originalexport. Enthält auch den aus der Auswertung ausgeschlossenen Cost Center DE2060502 – '
+     'die Summen dieses Blatts weichen deshalb von den Auswertungsblättern ab (siehe Blatt "Legende", Abschnitt 5).')
 wsR.freeze_panes = 'A3'
 wsR.auto_filter.ref = f'A2:H{ws_src.max_row}'
 
@@ -912,7 +931,7 @@ sec(r, '4) Annahmen (bitte prüfen)')
 r += 1
 kv(r, 'Reorganisation', 'FY26 existieren DE2060202 (ITSM+ServiceNow), DE2060203 (Digital Collaboration) und DE2060204 (Service Desk & Support). '
                         'FY27 existieren DE2060203 (Modern Workplace & Experience), DE2060204 (Support & Operations) und DE2060502 (IPS Management Office). '
-                        'DE2060202 entfällt, DE2060502 kommt neu hinzu.')
+                        'DE2060202 entfällt, DE2060502 kommt neu hinzu – DE2060502 ist jedoch aus dieser Auswertung ausgeschlossen (siehe Abschnitt 5).')
 r += 1
 kv(r, 'Bereinigte Sicht', 'Für die vergleichbare Sicht wird eine Position mit beiden Jahreswerten dem FY27-Cost-Center zugeordnet '
                           '(z. B. ServiceNow Enterprise Contract: FY26 auf DE2060202, FY27 auf DE2060204 – beide Werte werden DE2060204 zugerechnet).')
@@ -927,7 +946,24 @@ kv(r, 'Themen', 'Die Themen sind eine fachliche Bündelung der Positionsbezeichn
                 'Beispiel: "Microsoft M365 EA - Copilot Studio ..." zählt zu "KI & Copilot", nicht zu den M365-Lizenzen.')
 
 r += 2
-sec(r, '5) Farb- und Formatlogik')
+sec(r, '5) Ausgeschlossener Cost Center')
+r += 1
+kv(r, 'DE2060502', 'Der Cost Center DE2060502 (IPS Management Office NCE) ist auf Anforderung vollständig aus der '
+                   'Auswertung ausgeschlossen. Betroffen sind 8 Positionen, die auf keinem Blatt der Auswertung '
+                   'mehr enthalten sind – weder in den Tabellen noch in den Diagrammen oder Auswahllisten.')
+r += 1
+kv(r, 'Folge für FY26', 'Die Position "ITSM: SMO Operations" (FY26 300.000 EUR, gebucht auf DE2060202; FY27 300.000 EUR '
+                        'auf DE2060502) entfällt mit beiden Jahreswerten. Der FY26-Ausweis von DE2060202 in der Ist-Sicht '
+                        'reduziert sich dadurch um 300.000 EUR gegenüber dem Rohexport.')
+r += 1
+kv(r, 'Entfallenes Thema', 'Das Thema "IT-Management & Governance" bestand ausschließlich aus DE2060502-Positionen und '
+                           'erscheint deshalb nicht mehr in der Auswertung.')
+r += 1
+kv(r, 'Rohdaten', 'Das Blatt "Rohdaten sfinx" bleibt bewusst der unveränderte Originalexport und enthält DE2060502 '
+                  'weiterhin – als Nachweis der Quelle. Die Summen dort weichen daher von den Auswertungsblättern ab.')
+
+r += 2
+sec(r, '6) Farb- und Formatlogik')
 for k, v in [('Rot', 'Budgetanstieg FY27 gegenüber FY26 (Kostensteigerung).'),
              ('Grün', 'Budgetreduktion FY27 gegenüber FY26.'),
              ('Gelbe Zelle', 'Eingabe-/Auswahlfeld (Dropdown) im Dashboard.'),
