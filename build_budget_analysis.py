@@ -88,16 +88,6 @@ rows27 = [d for d in raw_rows if d['fy27']]
 m26 = {d['key']: d for d in rows26}
 m27 = {d['key']: d for d in rows27}
 
-# Der sFinx-Export fuehrt den FY27-Cost-Center von Modern Workplace & Experience
-# noch unter dem alten Code DE2060203. Laut Fachbereich lautet der FY27-Code
-# DE206210; die FY27-Zeilen werden deshalb auf diesen Code umgeschluesselt.
-CC_UMSCHLUESSELUNG_FY27 = {'DE2060203': 'DE206210'}
-for d in rows27:
-    neu = CC_UMSCHLUESSELUNG_FY27.get(d['code'])
-    if neu:
-        d['ccl'] = d['ccl'].replace(d['code'], neu, 1)
-        d['code'] = neu
-
 # Cost-Center-Bezeichnungen je Jahr
 CC_NAME = {}
 for d in rows26:
@@ -106,14 +96,14 @@ for d in rows27:
     CC_NAME.setdefault(d['code'], {})['FY27'] = d['ccl']
 
 # Organisatorische Ueberfuehrung FY26 -> FY27 (Vorgabe des Fachbereichs):
-#   DE2060202 (ITSM+ServiceNow)      wurde in DE2060204 integriert
-#   DE2060203 (Digital Collaboration) wurde nach DE206210 ueberfuehrt
+#   DE2060202 (ITSM+ServiceNow)       wurde in DE2060204 integriert
+#   DE2060203 (Digital Collaboration) wird unveraendert fortgefuehrt
 #   DE2060204 (Serv. Desk+Support)    wird unveraendert fortgefuehrt
 CC_NACHFOLGER = {'DE2060202': 'DE2060204',
-                 'DE2060203': 'DE206210',
+                 'DE2060203': 'DE2060203',
                  'DE2060204': 'DE2060204'}
 CC_UEBERFUEHRUNG_ART = {'DE2060202': 'in DE2060204 integriert',
-                        'DE2060203': 'nach DE206210 überführt',
+                        'DE2060203': 'unverändert fortgeführt',
                         'DE2060204': 'unverändert fortgeführt'}
 
 # Feste Lage der Ueberfuehrungstabelle auf dem Blatt 'Cost Center'. Die Spalte
@@ -989,16 +979,13 @@ r += 2
 sec(r, '4) Annahmen (bitte prüfen)')
 r += 1
 kv(r, 'Überführung (Vorgabe)', 'Vom Fachbereich vorgegeben und in Block A des Blatts "Cost Center" dokumentiert: '
-                              'DE2060202 (ITSM+ServiceNow) wurde in DE2060204 integriert · DE2060203 (Digital Collaboration) wurde '
-                              'nach DE206210 (Modern Workplace & Experience) überführt · DE2060204 wird unverändert fortgeführt.')
-r += 1
-kv(r, 'Umschlüsselung DE206210', 'Achtung: Der sFinx-Export führt den FY27-Cost-Center von Modern Workplace & Experience noch unter '
-                                 'dem alten Code DE2060203. Gemäß Vorgabe werden alle FY27-Zeilen dieses Cost Centers auf den Code '
-                                 'DE206210 umgeschlüsselt. Im Blatt "Rohdaten sfinx" steht daher weiterhin DE2060203.')
+                              'DE2060202 (ITSM+ServiceNow) wurde in DE2060204 integriert · DE2060203 (Digital Collaboration bzw. '
+                              'Modern Workplace & Experience) wird unverändert fortgeführt · DE2060204 wird unverändert fortgeführt. '
+                              'DE2060502 bleibt unberücksichtigt (siehe Abschnitt 5).')
 r += 1
 kv(r, 'Bereinigte Sicht', 'Für die vergleichbare Sicht wird eine Position mit beiden Jahreswerten dem FY27-Cost-Center zugeordnet '
                           '(z. B. ServiceNow Enterprise Contract: FY26 auf DE2060202, FY27 auf DE2060204 – beide Werte werden DE2060204 zugerechnet). '
-                          'Es verbleiben damit die beiden fortgeführten Cost Center DE2060204 und DE206210.')
+                          'Es verbleiben damit die beiden fortgeführten Cost Center DE2060203 und DE2060204.')
 r += 1
 kv(r, 'FY26-Positionen ohne Nachfolger', 'Positionen, die es nur in FY26 gibt, folgen der Überführung aus Block A: '
                                          'ITSM CSI Fokus, ITSM Development und ServiceNow Modul Release Management (SAP) '
